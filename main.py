@@ -36,8 +36,8 @@ while True:
     
     # Write out to log file what occurred
     log.write("recieved %s\n" % data)
-    log.write("updating x -> %d\n" % x)
-    log.write("updating y -> %d\n" % y)
+    #log.write("updating x -> %d\n" % x) # NOTE: disabled for demo
+    #log.write("updating y -> %d\n" % y)
     log.flush()
     
     # Send data back to the Serverside -- MUST BE JSON

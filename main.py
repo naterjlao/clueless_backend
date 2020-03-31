@@ -10,7 +10,7 @@
 # Open up a log file in a specified place
 LOG = "/opt/clueless/log/backend.log"
 log = open(LOG,'a+')
-log.write('Skeletal Demo Backend Log')
+log.write('Skeletal Demo Backend Log\n')
 log.flush()
 
 # Create variables that is stored at runtime for this process
@@ -31,15 +31,17 @@ while True:
         x = x + SPEED
     elif data == "up":
         y = y - SPEED
-    elif case "down":
+    elif data == "down":
         y = y + SPEED
     
     # Write out to log file what occurred
-    log.write("recieved %s" % data)
-    log.write("updating x -> %d" % x)
-    log.write("updating y -> %d" % y)
+    log.write("recieved %s\n" % data)
+    log.write("updating x -> %d\n" % x)
+    log.write("updating y -> %d\n" % y)
     log.flush()
     
     # Send data back to the Serverside -- MUST BE JSON
-    print(("{x:%d,y:%d}" % (x,y)), flush=True)
+    returnMsg = "{\"x\":%d,\"y\":%d}" % (x,y)
+    log.write("sending %s\n" % returnMsg)
+    print(returnMsg, flush=True)
     

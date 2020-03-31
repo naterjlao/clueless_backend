@@ -8,8 +8,8 @@
 ##############################################################################
 
 # Open up a log file in a specified place
-LOG="/opt/clueless/log/backend.log"
-log = open(LOG,'w')
+LOG = "/opt/clueless/log/backend.log"
+log = open(LOG,'a+')
 log.write('Skeletal Demo Backend Log')
 log.flush()
 
@@ -25,27 +25,21 @@ while True:
     data = data.strip()
     
     # Determine what to do with that data
-    switch (data) {
-        case "left":
-            x = x - SPEED
-            break
-        case "right":
-            x = x + SPEED
-            break
-        case "up":
-            y = y - SPEED
-            break
-        case "down":
-            y = y + SPEED
-            break
-    }
+    if data == "left":
+        x = x - SPEED
+    elif data == "right":
+        x = x + SPEED
+    elif data == "up":
+        y = y - SPEED
+    elif case "down":
+        y = y + SPEED
     
     # Write out to log file what occurred
     log.write("recieved %s" % data)
-    log.write("updating x -> $d" % x)
-    log.write("updating y -> $d" % y)
+    log.write("updating x -> %d" % x)
+    log.write("updating y -> %d" % y)
     log.flush()
     
     # Send data back to the Serverside -- MUST BE JSON
-    print(("{x:%d,y:%d}" % x,y), flush=True)
+    print(("{x:%d,y:%d}" % (x,y)), flush=True)
     

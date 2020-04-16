@@ -58,7 +58,7 @@ def sendToPlayer(playerID,event,sendData):
         EVENT     : event,
         PAYLOAD   : sendData
         }
-    print(json.dumps(signal),flush=True) # Spit out to stdout!
+    print(json.dumps(signal).replace("'",'"'),flush=True) # Spit out to stdout!
 
 # Shoots <sendData> for the <event> to Serverside for all Clients
 def sendToAll(event,sendData):
@@ -98,9 +98,6 @@ if __name__ == "__main__": # Safeguard against accidental imports
         recieve = recieve.strip()
         data = json.loads(recieve) # data is coverted to a dictionary
         
-        # Payload signal to the Clients
-        send = {}
-        
         ########## NOTE -- these might be temporary!!!! ##########
         # NOTE -- THESE CORRESPOND TO THE CLIENT -> SERVER event SIGNATURE in server.service.ts (frontend)
         # Handler for enteredGame()
@@ -110,13 +107,13 @@ if __name__ == "__main__": # Safeguard against accidental imports
         # Handler for move()
         elif data[EVENT] == "move":
             if data[PAYLOAD] == "left":
-                position["x"] += position.x - 5
+                position["x"] = position["x"] - 5
             if data[PAYLOAD] == "right":
-                position["x"] += position.x + 5
+                position["x"] = position["x"] + 5
             if data[PAYLOAD] == "up":
-                position["y"] += position.y - 5
+                position["y"] = position["y"] - 5
             if data[PAYLOAD] == "down":
-                position["y"] += position.y + 5
+                position["y"] = position["y"] + 5
             sendToAll('move',position)
                 
         # Handler for endTurn()
@@ -126,5 +123,7 @@ if __name__ == "__main__": # Safeguard against accidental imports
         # Handler for removeSocket()
         elif data[EVENT] == "disconnect":
             pass
+            
+        data = None
         
         ########## NOTE -- these might be temporary!!!! ##########

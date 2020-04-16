@@ -17,12 +17,12 @@ import json
 #          format:
 #          {
 #               playerID: "all" or <playerID>,
-#               eventName: <string>,
+#               event: <string>,
 #               payload: {}
 #          }
 #          Where:
 #              -playerID : the target player ID string to be sent
-#              -eventName : the string action that corresponds to the eventName
+#              -event : the string action that corresponds to the event
 #                           signature expected by the player
 #              -payload : a dictionary (JSON) to sent to the player(s)
 #
@@ -31,37 +31,41 @@ import json
 #          the following format:
 #          {
 #               playerID: <playerID>,
-#               eventName: <string>,
+#               event: <string>,
 #               payload: {}
 #          }
 #          Where:
 #              -playerID : the player ID that sent the signal
-#              -eventName : the string action that corresponds to the eventName
+#              -event : the string action that corresponds to the event
 #                           signature made by the player
 #              -payload : a dictionary (JSON) to sent to the player(s)
 #
 ################################################################################
 
+PLAYER_ID = 'playerID'
+EVENT = 'event' # TODO use 'event' (name is redundant)
+PAYLOAD = 'payload'
+
 ################################################################################
 # AUXILIARY FUNCTIONS
 ################################################################################
 
-# Shoots <sendData> for the <eventName> to Serverside for the lucky Client
+# Shoots <sendData> for the <event> to Serverside for the lucky Client
 # that is associated with <playerID>
-def sendToPlayer(playerID,eventName,sendData):
+def sendToPlayer(playerID,event,sendData):
     signal = {
-        'playerID': playerID,
-        'eventName': eventName,
-        'payload':sendData
+        PLAYER_ID : playerID,
+        EVENT     : event,
+        PAYLOAD   : sendData
         }
     print(json.dumps(signal),flush=True) # Spit out to stdout!
 
-# Shoots <sendData> for the <eventName> to Serverside for all Clients
-def sendToAll(eventName,sendData):
-    sendToPlayer("all",eventName,sendData)
+# Shoots <sendData> for the <event> to Serverside for all Clients
+def sendToAll(event,sendData):
+    sendToPlayer("all",event,sendData)
 
 # TODO this might be temporary
-def nextTurn: # TODO
+def nextTurn(): # TODO
     pass
     
 ################################################################################
@@ -73,12 +77,9 @@ playerIDs = []
 
 #### TODO --- THIS IS TEMPORARY replace with actual game objects ----- #######
 # Create variables that is stored at runtime for this process
-position = {x:100,y:100}
+position = {"x":100,"y":100}
 current_turn = 0 # start at the first player
 #### TODO --- THIS IS TEMPORARY replace with actual game objects ----- #######
-
-
-
 
 
 ################################################################################
@@ -87,6 +88,11 @@ current_turn = 0 # start at the first player
 if __name__ == "__main__": # Safeguard against accidental imports
     # Spinup a listener, this will be killed when the Serverside application is killed
     while True:
+    
+        # TODO -- there is a case where there might be conflicting signals at the same time,
+        # TODO -- might need to implement an input buffer to handle these cases.
+        # TODO -- worst case, multithreading might be needed
+    
         # Raw signal from the ServerSide
         recieve = input()
         recieve = recieve.strip()
@@ -96,29 +102,29 @@ if __name__ == "__main__": # Safeguard against accidental imports
         send = {}
         
         ########## NOTE -- these might be temporary!!!! ##########
-        # NOTE -- THESE CORRESPOND TO THE CLIENT -> SERVER eventName SIGNATURE in server.service.ts (frontend)
+        # NOTE -- THESE CORRESPOND TO THE CLIENT -> SERVER event SIGNATURE in server.service.ts (frontend)
         # Handler for enteredGame()
-        if data.eventName == "enteredGame":
+        if data[EVENT] == "enteredGame":
             pass
             
         # Handler for move()
-        elif data.eventName == "move":
-            if data.payload == "left":
-                position.x += position.x - 5
-            if data.payload == "right":
-                position.x += position.x + 5
-            if data.payload == "up":
-                position.y += position.y - 5
-            if data.payload == "down":
-                position.y += position.y + 5
+        elif data[EVENT] == "move":
+            if data[PAYLOAD] == "left":
+                position["x"] += position.x - 5
+            if data[PAYLOAD] == "right":
+                position["x"] += position.x + 5
+            if data[PAYLOAD] == "up":
+                position["y"] += position.y - 5
+            if data[PAYLOAD] == "down":
+                position["y"] += position.y + 5
             sendToAll('move',position)
                 
         # Handler for endTurn()
-        elif data.eventName == "pass_turn":
+        elif data[EVENT] == "pass_turn":
             pass
         
         # Handler for removeSocket()
-        elif data.eventName == "disconnect":
+        elif data[EVENT] == "disconnect":
             pass
         
         ########## NOTE -- these might be temporary!!!! ##########

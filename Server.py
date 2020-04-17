@@ -1,6 +1,6 @@
 import random
 import Entity
-
+import json
 
 class Game(object):
 
@@ -27,7 +27,10 @@ class Game(object):
 
 		hands = card_deck.deal_cards(player_count)
 		for x in range(player_count):
-			self.game.players[x].game_cards = hands[x]
+			self.game.players[x].card_hand = hands[x]
+
+		print(json.dumps(self.game.format(), indent=2))
+
 
 
 	def end_game(self):
@@ -36,10 +39,10 @@ class Game(object):
 		self.players = dict()
 
 
-	def make_move(self, player, suspect, room):
+	def make_move(self, name, suspect, room):
 
-		self.check_user(player)
-		self.check_turn(player)
+		self.check_user(name)
+		self.check_turn(name)
 		self.check_turn_status(Entity.AWAITING_MOVE)
 
 		self.check_suspect(suspect)
@@ -53,11 +56,12 @@ class Game(object):
 
 		self.move_suspect(suspect, new_space)
 
-		if isInstance(new_space, Entity.Room):
+		if isinstance(new_space, Entity.Room):
 			self.game.turn_status = Entity.AWAITING_SUGGESTION
 		else:
 			self.game.turn_status = Entity.AWAITING_ACCUSATION_OR_END_TURN
 
+		print(json.dumps(self.game.format(), indent=2))
 
 
 	def select_suspect(self, name, suspect):
@@ -66,10 +70,10 @@ class Game(object):
 		self.players[name].suspect = suspect
 
 
-	def make_suggestion(self, player, suspect, weapon, room):
+	def make_suggestion(self, name, suspect, weapon, room):
 
-		self.check_user(player)
-		self.check_turn(player)
+		self.check_user(name)
+		self.check_turn(name)
 		self.check_suspect(suspect)
 		self.check_weapon(weapon)
 		self.check_room(room)
@@ -104,10 +108,10 @@ class Game(object):
 		self.game.turn_status = Entity.AWAITING_ACCUSATION_OR_END_TURN
 
 
-	def make_accusation(self, player, suspect, weapon, room):
+	def make_accusation(self, name, suspect, weapon, room):
 
-		self.check_user(player)
-		self.check_turn(player)
+		self.check_user(name)
+		self.check_turn(name)
 		self.check_suspect(suspect)
 		self.check_weapon(weapon)
 		self.check_room(room)
@@ -125,13 +129,14 @@ class Game(object):
 			self.game.turn_list.remove(lost_player)
 
 
-	def end_turn(self, player):
+	def end_turn(self, name):
 
-		self.check_user(player)
-		self.check_turn(player)
+		self.check_user(name)
+		self.check_turn(name)
 		self.check_end_turn_status()
 		self.next_turn()
 
+		print(json.dumps(self.game.format(), indent=2))
 
 
 
@@ -172,20 +177,21 @@ class Game(object):
 		return turn_index
 
 
+
 	def check_turn_status(self, status):
 		if self.game.turn_status != status:
 			raise SyntaxError
 
-	def check_turn(self, player):
-		if player != self.game.current_player.player:
+
+
+	def check_turn(self, name):
+		if name != self.game.current_player.name:
 			raise SyntaxError
 
 
 	def check_end_turn_status(self):
 		if self.game.turn_status != Entity.AWAITING_ACCUSATION_OR_END_TURN:
 			raise SyntaxError
-
-
 
 
 	'''
@@ -197,7 +203,7 @@ class Game(object):
 			raise
 
 	def check_board_available(self, room):
-		if not self.game.game_board[room].isAvailable():
+		if not self.game.game_board[room].available():
 			raise SyntaxError
 
 	def check_board(self, room):
@@ -233,7 +239,7 @@ class Game(object):
 		game_board = self.game.game_board
 		rooms = [room for room in [game_board[space]
 				for space in game_board
-				if isInstance(game_board[space], Entity.Room)]]
+				if isinstance(game_board[space], Entity.Room)]]
 
 		for room in rooms:
 			if weapon in room.weapons:
@@ -305,8 +311,6 @@ class Game(object):
 
 
 
-
-
 class Cards(object):
 
 
@@ -352,3 +356,5 @@ class Cards(object):
 		return self.winning_cards
 
 
+
+	

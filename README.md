@@ -11,3 +11,4 @@ Adapt the following methods from Server:
 5. respond_suggestion // player who receives a suggestion must resopnd
 6. make_accusation // makes a new accusation
 7. end_turn // end turn for current player
+8. start_game // starts a new game

@@ -1,5 +1,5 @@
 # clueless_sandbox_gamelogic
-developed in pytnon 2.7
+developed in python 2.7
 
 Run API.py to initialize game state and make first moves.
 To map to front-end service 'from Server import Game' and intantiate a Game for game state dictionary. 

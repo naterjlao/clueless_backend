@@ -58,7 +58,7 @@ Passages = [STUDY_LIBRARY,STUDY_HALL,
 			BALLROOM_KITCHEN
 			]
 
-AWAITING_MOVE = "Awaiting Movee"
+AWAITING_MOVE = "Awaiting Move"
 AWAITING_SUGGESTION = "Awaiting Suggestion"
 AWAITING_SUGGESTION_RESPONSE = "Awaiting Response"
 AWAITING_ACCUSATION_OR_END_TURN = "Awaiting Accusation or End of Turn"
@@ -68,9 +68,9 @@ AWAITING_ACCUSATION_OR_END_TURN = "Awaiting Accusation or End of Turn"
 
 class Player(object):
 
-	def __init__(self, user, suspect = None, card_hand = None, card_seen = None):
+	def __init__(self, name, suspect = None, card_hand = None, card_seen = None):
 
-		self.user = user
+		self.name = name
 
 		if suspect:
 			self.suspect = suspect
@@ -89,7 +89,7 @@ class Player(object):
 	def format(self):
 
 		return{
-			"user": self.user,
+			"user": self.name,
 			"suspect": self.suspect,
 			"card_hand": [game_card.format() for game_card in self.card_hand],
 			"card_seen:": [game_card.format() for game_card in self.card_seen]
@@ -207,7 +207,7 @@ class GameModel(object):
 	def __init__(self, game, players, player_messages = None,
 				 turn_list = None, current_player = None, turn_status = None,
 				 current_suggestion = None, suggestion_response = None,
-				 case_file = None, game_active = True, game_winner = None,
+				 win_hand = None, game_active = True, game_winner = None,
 				 game_board = None):
 
 		self.game = game
@@ -238,10 +238,10 @@ class GameModel(object):
 
 		self.suggestion_response = suggestion_response
 
-		if case_file:
-			self.case_file = case_file
+		if win_hand:
+			self.win_hand = win_hand
 		else:
-			self.case_file = list()
+			self.win_hand = list()
 
 		self.game_active = game_active
 
@@ -332,7 +332,7 @@ class GameModel(object):
 			"suggestion_response": self.suggestion_response.format()
 				if self.suggestion_response else None,
 
-			"case_file": [card.format() for card in self.case_file],
+			"win_hand": [card.format() for card in self.win_hand],
 
 			"game_active": self.game_active,
 

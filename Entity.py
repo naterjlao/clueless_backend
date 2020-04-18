@@ -309,7 +309,7 @@ class GameModel(object):
 				}
 
 
-
+	# Returns a dictionary of the current game state.
 	def format(self):
 
 		return {

@@ -10,9 +10,13 @@ class Game(object):
 		self.game_id = None
 		self.game = None
 
-	# Returns the gamestate JSON on demand.
-	def get_gamestateJSON(self):
-		return(json.dumps(self.game.format()))
+	# Returns the gamestate dictionary object on demand.
+	# This is utilized by the Serverside which is pushed in JSON payload
+	def get_gamestateDict(self):
+		if (self.game == None):
+			return {} # TODO for now, only return an empty dictionary
+		else
+			return self.game.format()
 
 	def add_player(self, name):
 
@@ -33,8 +37,7 @@ class Game(object):
 		for x in range(player_count):
 			self.game.players[x].card_hand = hands[x]
 
-		return(json.dumps(self.game.format(), indent=2))
-
+		#print(json.dumps(self.game.format(), indent=2))
 
 
 	def end_game(self):
@@ -65,8 +68,7 @@ class Game(object):
 		else:
 			self.game.turn_status = Entity.AWAITING_ACCUSATION_OR_END_TURN
 
-		return(json.dumps(self.game.format(), indent=2))
-
+		#print(json.dumps(self.game.format(), indent=2))
 
 	def select_suspect(self, name, suspect):
 
@@ -140,9 +142,7 @@ class Game(object):
 		self.check_end_turn_status()
 		self.next_turn()
 
-		return(json.dumps(self.game.format(), indent=2))
-
-
+		#print(json.dumps(self.game.format(), indent=2))
 
 	'''
 	Turn Queue Helpers

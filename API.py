@@ -22,11 +22,10 @@ class Resource:
 
         game.start_game()
 
-        #game.make_move("King", "Mrs White", "ballroom-kitchen Passage")
-        #game.end_turn("King")
+        game.make_move("1", "Miss Scarlet", "hall-lounge Passage")
+        game.end_turn("1")
 
-        #game.make_move("Tolly", "Professor Plum", "study-library Passage")
-        #game.end_turn("Tolly")
+  
 
 
 

@@ -10,6 +10,10 @@ class Game(object):
 		self.game_id = None
 		self.game = None
 
+    # Returns the gamestate JSON on demand.
+    def get_gamestateJSON(self):
+        return(json.dumps(self.game.format()))
+
 	def add_player(self, name):
 
 		self.players[name] = Entity.Player(name)

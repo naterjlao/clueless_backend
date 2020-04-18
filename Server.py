@@ -15,7 +15,7 @@ class Game(object):
 	def get_gamestateDict(self):
 		if (self.game == None):
 			return {} # TODO for now, only return an empty dictionary
-		else
+		else:
 			return self.game.format()
 
 	def add_player(self, name):

@@ -6,26 +6,27 @@ class Resource:
 
     def main():
 
-        game.add_player("Tolly")
-        game.select_suspect("Tolly", "Professor Plum")
-        game.add_player("Claire")
-        game.select_suspect("Claire", "Mrs Peacock")
-        game.add_player("Andrew")
-        game.select_suspect("Andrew", "Colonel Mustard")
-        game.add_player("Nate")
-        game.select_suspect("Nate", "Mr Green")
-        game.add_player("King")
-        game.select_suspect("King", "Mrs White")
-        game.add_player("Queen")
-        game.select_suspect("Queen", "Miss Scarlet")
+        game.add_player("1")
+        game.select_suspect("1", "Miss Scarlet")
+        game.add_player("2")
+        game.select_suspect("2", "Professor Plum")
+        game.add_player("3")
+        game.select_suspect("3", "Mrs Peacock")
+        game.add_player("4")
+        game.select_suspect("4", "Colonel Mustard")
+        game.add_player("5")
+        game.select_suspect("5", "Mr Green")
+        game.add_player("6")
+        game.select_suspect("6", "Mrs White")
+
 
         game.start_game()
 
-        game.make_move("King", "Mrs White", "ballroom-kitchen Passage")
-        game.end_turn("King")
+        #game.make_move("King", "Mrs White", "ballroom-kitchen Passage")
+        #game.end_turn("King")
 
-        game.make_move("Tolly", "Professor Plum", "study-library Passage")
-        game.end_turn("Tolly")
+        #game.make_move("Tolly", "Professor Plum", "study-library Passage")
+        #game.end_turn("Tolly")
 
 
 

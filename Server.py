@@ -29,7 +29,7 @@ class Game(object):
 		for x in range(player_count):
 			self.game.players[x].card_hand = hands[x]
 
-		print(json.dumps(self.game.format(), indent=2))
+		return(json.dumps(self.game.format(), indent=2))
 
 
 
@@ -61,7 +61,7 @@ class Game(object):
 		else:
 			self.game.turn_status = Entity.AWAITING_ACCUSATION_OR_END_TURN
 
-		print(json.dumps(self.game.format(), indent=2))
+		return(json.dumps(self.game.format(), indent=2))
 
 
 	def select_suspect(self, name, suspect):
@@ -136,7 +136,7 @@ class Game(object):
 		self.check_end_turn_status()
 		self.next_turn()
 
-		print(json.dumps(self.game.format(), indent=2))
+		return(json.dumps(self.game.format(), indent=2))
 
 
 

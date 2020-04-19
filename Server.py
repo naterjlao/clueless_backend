@@ -47,7 +47,7 @@ class Game(object):
 		for x in range(player_count):
 			self.game.players[x].card_hand = hands[x]
 
-		#print(json.dumps(self.game.format(), indent=2))
+		json.dumps(self.game.format(), indent=2)
 
     # Wipes out the game instance and clears the players held
 	def end_game(self):
@@ -81,7 +81,7 @@ class Game(object):
 		else:
 			self.game.turn_status = Entity.AWAITING_ACCUSATION_OR_END_TURN
 
-		#print(json.dumps(self.game.format(), indent=2))
+		json.dumps(self.game.format(), indent=2)
 
     # Associates a suspect character for the given <name> of the player.
 	def select_suspect(self, name, suspect):
@@ -176,7 +176,7 @@ class Game(object):
 		self.check_end_turn_status()
 		self.next_turn()
 
-		#print(json.dumps(self.game.format(), indent=2))
+		json.dumps(self.game.format(), indent=2)
 
 	'''
 	Turn Queue Helpers

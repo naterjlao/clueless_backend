@@ -93,7 +93,10 @@ class Game(object):
 		self.check_character(suspect)
 		self.players[name].suspect = suspect
 		Entity.CHARACTERS.remove(suspect)
-		print(Entity.CHARACTERS)
+		
+		available_characters = {"available_characters": Entity.CHARACTERS}
+		print(json.dumps(available_characters))
+		
 
 	def check_character(self, suspect):
 		if suspect not in Entity.CHARACTERS:

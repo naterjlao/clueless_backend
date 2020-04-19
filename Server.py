@@ -2,6 +2,8 @@ import random
 import Entity
 import json
 
+# Defines the Game interface
+# This is the only thing that should be imported when interfacing with the Cluless game.
 class Game(object):
 
 	def __init__(self):
@@ -14,14 +16,21 @@ class Game(object):
 	# This is utilized by the Serverside which is pushed in JSON payload
 	def get_gamestateDict(self):
 		if (self.game == None):
-			return {} # TODO for now, only return an empty dictionary
+            # Return a empty dictionary object in the event that start_game() is never called
+			return {}
 		else:
+            # Return the dictionary reprsentation of the game.
 			return self.game.format()
 
+    # Adds a player with a given name
+    # The <name> is used as identifier for the player.
+    # This function MUST be called before start_game()
 	def add_player(self, name):
 
 		self.players[name] = Entity.Player(name)
 
+    # Initiates the start of the game.
+    # Cards are given out to each of the players
 	def start_game(self):
 
 		game_players = [self.players[key] for key in self.players]
@@ -39,13 +48,16 @@ class Game(object):
 
 		#print(json.dumps(self.game.format(), indent=2))
 
-
+    # Wipes out the game instance and clears the players held
 	def end_game(self):
-
 		self.game = None
 		self.players = dict()
 
-
+    # Performs a movement for the player
+    # Params:
+    # <name> : player identifier
+    # <suspect> : the suspect of the player
+    # <room> : move destination
 	def make_move(self, name, suspect, room):
 
 		self.check_user(name)
@@ -70,12 +82,17 @@ class Game(object):
 
 		#print(json.dumps(self.game.format(), indent=2))
 
+    # Associates a suspect character for the given <name> of the player.
 	def select_suspect(self, name, suspect):
-
 		self.check_suspect(suspect)
 		self.players[name].suspect = suspect
 
 
+    # Performs a make a suggestion call
+    # <name> : player identifier of the person making the suggestion
+    # <suspect> : the suspect that is called out in the suggestion
+    # <weapon> : the weapon that is called out in the suggestion
+    # <room> : the room that is called out in the suggestion
 	def make_suggestion(self, name, suspect, weapon, room):
 
 		self.check_user(name)
@@ -93,6 +110,9 @@ class Game(object):
 		self.game.current_suggestion = Entity.Suggestion(suspect, weapon, room)
 
 
+    # Performs a counter response to the suggestion
+    # <player> : the player performing the counter
+    # <card> : the card used for countering the suggestion
 	def respond_suggestion(self, player, card):
 
 		self.check_user(player)
@@ -113,7 +133,8 @@ class Game(object):
 
 		self.game.turn_status = Entity.AWAITING_ACCUSATION_OR_END_TURN
 
-
+    # Performs a make a accusation action
+    # See make_suggestion() for parameter info.
 	def make_accusation(self, name, suspect, weapon, room):
 
 		self.check_user(name)
@@ -134,7 +155,7 @@ class Game(object):
 			self.next_turn()
 			self.game.turn_list.remove(lost_player)
 
-
+    # Ends the turn of the current player.
 	def end_turn(self, name):
 
 		self.check_user(name)
@@ -204,7 +225,7 @@ class Game(object):
 
 	def check_room(self, room):
 		if room not in Entity.ROOMS:
-			raise
+			raise SyntaxError
 
 	def check_board_available(self, room):
 		if not self.game.game_board[room].available():
@@ -241,7 +262,7 @@ class Game(object):
 	def get_weapon_current_space(self, weapon):
 
 		game_board = self.game.game_board
-		rooms = [room for room in [game_board[space]
+		rooms = [room for room in [game_board[space] # FIXME syntax is wrong
 				for space in game_board
 				if isinstance(game_board[space], Entity.Room)]]
 
@@ -274,7 +295,7 @@ class Game(object):
 
 		for player in self.game.players:
 			if name == player.name:
-				return
+				return # FIXME missing return value
 		raise SyntaxError
 
 

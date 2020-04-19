@@ -88,6 +88,16 @@ class Game(object):
 		self.check_suspect(suspect)
 		self.players[name].suspect = suspect
 
+	def select_character(self, name, suspect):
+
+		self.check_character(suspect)
+		self.players[name].suspect = suspect
+		Entity.CHARACTERS.remove(suspect)
+		print(Entity.CHARACTERS)
+
+	def check_character(self, suspect):
+		if suspect not in Entity.CHARACTERS:
+			raise SyntaxError
 
     # Performs a make a suggestion call
     # <name> : player identifier of the person making the suggestion

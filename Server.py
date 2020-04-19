@@ -18,7 +18,7 @@ class Game(object):
 	def get_gamestateDict(self):
 		if (self.game == None):
             # Return a empty dictionary object in the event that start_game() is never called
-			return Entity.GameModel(None,None) # FIXME -- this is a workaround, send out a dummy GameModel if game not initialized
+			return Entity.GameModel(["temporary"],["workaround"]).format() # FIXME -- this is a workaround, send out a dummy GameModel if game not initialized
 		else:
             # Return the dictionary reprsentation of the game.
 			return self.game.format()

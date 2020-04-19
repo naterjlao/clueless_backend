@@ -1,4 +1,4 @@
-
+#!/usr/bin/python3
 
 # Set up Constants for Characters, Rooms, Names and Turns Variables
 

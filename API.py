@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from Server import Game
 
 game = Game()

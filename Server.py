@@ -65,6 +65,10 @@ class Game(object):
 		self.check_turn(name)
 		self.check_turn_status(Entity.AWAITING_MOVE)
 
+		
+		self.check_move_options(room)
+
+			
 		self.check_suspect(suspect)
 		self.check_player_suspect(suspect)
 		self.check_board(room)
@@ -252,6 +256,8 @@ class Game(object):
 		if new_space.name not in current_space.connected:
 			raise SyntaxError
 
+	def check_move_options(self, current_space):
+		print(json.dumps(self.game.game_board[current_space].connected))
 
 
 

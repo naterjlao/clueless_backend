@@ -92,6 +92,13 @@ class Game(object):
 		self.check_suspect(suspect)
 		self.players[name].suspect = suspect
 
+		
+	def start_select_character(self):
+
+		start_available_characters = {"start_available_characters": Entity.CHARACTERS}
+		return start_available_characters		
+		
+		
 	def select_character(self, name, suspect):
 
 		self.check_character(suspect)

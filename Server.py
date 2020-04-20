@@ -181,6 +181,10 @@ class Game(object):
 		self.next_turn()
 
 		json.dumps(self.game.format(), indent=2)
+				
+	# Returns a list of available connected rooms based on the current space
+	def check_move_options(self, current_space):
+		return self.game.game_board[current_space].connected
 
 	'''
 	Turn Queue Helpers
@@ -255,9 +259,6 @@ class Game(object):
 	def check_ifconnected(self, current_space, new_space):
 		if new_space.name not in current_space.connected:
 			raise SyntaxError
-
-	def check_move_options(self, current_space):
-		print(json.dumps(self.game.game_board[current_space].connected))
 
 
 

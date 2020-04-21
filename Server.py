@@ -2,6 +2,7 @@
 import random
 import Entity
 import json
+import ErrorServer
 
 # Defines the Game interface
 # This is the only thing that should be imported when interfacing with the Cluless game.
@@ -233,7 +234,7 @@ class Game(object):
 
 	def check_turn_status(self, status):
 		if self.game.turn_status != status:
-			raise SyntaxError
+			raise ErrorServer.InvalidEndTurn
 		#print(json.dumps(self.game.turn_status))
 		return self.game.turn_status
 

@@ -95,8 +95,8 @@ class Game(object):
 		
 	def start_select_character(self):
 
-		start_available_characters = {"start_available_characters": Entity.CHARACTERS}
-		return start_available_characters		
+		available_characters = {"available_characters": Entity.CHARACTERS}
+		return available_characters		
 		
 		
 	def select_character(self, name, suspect):

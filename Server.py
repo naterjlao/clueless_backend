@@ -234,6 +234,8 @@ class Game(object):
 	def check_turn_status(self, status):
 		if self.game.turn_status != status:
 			raise SyntaxError
+		#print(json.dumps(self.game.turn_status))
+		return self.game.turn_status
 
 
 

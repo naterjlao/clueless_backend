@@ -303,7 +303,7 @@ class Game(object):
 	def get_suspect_current_space(self, suspect):
 		for space in self.game.game_board:
 			if suspect in self.game.game_board[space].suspects:
-			return self.game.game_board[space].name
+			return self.game.game_board[space]
 
 	def check_weapon(self, weapon):
 

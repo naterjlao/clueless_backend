@@ -169,7 +169,7 @@ class Room(BoardObject):
 
 	# Multiple Players can be in Room
 	def available(self):
-		pass
+		return True
 
 	def format(self):
 

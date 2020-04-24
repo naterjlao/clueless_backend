@@ -3,6 +3,10 @@ import random
 import Entity
 import json
 import ErrorServer
+import LogServer
+
+LOG = LogServer.logger(__name__)
+
 
 # Defines the Game interface
 # This is the only thing that should be imported when interfacing with the Cluless game.
@@ -48,12 +52,18 @@ class Game(object):
 		for x in range(player_count):
 			self.game.players[x].card_hand = hands[x]
 
+		LOG.info("started game")
+
+
 		#json.dumps(self.game.format(), indent=2)
 
     # Wipes out the game instance and clears the players held
 	def end_game(self):
 		self.game = None
 		self.players = dict()
+
+		LOG.info("ended game")
+
 
     # Performs a movement for the player
     # Params:
@@ -88,6 +98,11 @@ class Game(object):
 
 		#json.dumps(self.game.format(), indent=2)
 
+		LOG.info("player made a board move: ")
+
+
+
+
     # Associates a suspect character for the given <name> of the player.
 	def select_suspect(self, name, suspect):
 		self.check_suspect(suspect)
@@ -111,7 +126,7 @@ class Game(object):
 
 	def check_character(self, suspect):
 		if suspect not in Entity.CHARACTERS:
-			raise SyntaxError
+			raise ErrorServer.InvalidMove
 
     # Performs a make a suggestion call
     # <name> : player identifier of the person making the suggestion
@@ -133,6 +148,31 @@ class Game(object):
 		self.move_weapon(weapon, suggestion_room)
 
 		self.game.current_suggestion = Entity.Suggestion(suspect, weapon, room)
+
+		suggestion_responder = self.check_suggestion_responder()
+
+		#self.game.suggestion_response_player = response_player
+		if suggestion_responder:
+			self.game.check_suggestion_player = suggestion_responder
+			self.game.turn_status = Entity.AWAITING_SUGGESTION_RESPONSE
+
+		else:
+			self.game.turn_status = Entity.AWAITING_ACCUSATION_OR_END_TURN
+
+		LOG.info("player made a suggestion move: ")
+
+
+
+	def check_suggestion_responder(self):
+
+		for player in self.game.players:
+			if player.name is self.game.current_suggestion.suspect:
+				LOG.info("the suggested is in the game so should move to AWAITING SUGGESTION RESPONE")
+				return player
+			else:
+				LOG.info("the suggested player isn't in the game so pass")
+				return None
+
 
 
     # Performs a counter response to the suggestion
@@ -158,6 +198,10 @@ class Game(object):
 
 		self.game.turn_status = Entity.AWAITING_ACCUSATION_OR_END_TURN
 
+
+		LOG.info("player responded to a suggestion: ")
+
+
     # Performs a make a accusation action
     # See make_suggestion() for parameter info.
 	def make_accusation(self, name, suspect, weapon, room):
@@ -180,6 +224,12 @@ class Game(object):
 			self.next_turn()
 			self.game.turn_list.remove(lost_player)
 
+
+		LOG.info("player made an accusation: ")
+
+
+
+
     # Ends the turn of the current player.
 	def end_turn(self, name):
 
@@ -188,10 +238,16 @@ class Game(object):
 		self.check_end_turn_status()
 		self.next_turn()
 
+
+		LOG.info("player ended their turn ")
+
+
+
 		#json.dumps(self.game.format(), indent=2)
 				
 	# Returns a list of available connected rooms based on the current space
 	def check_move_options(self, current_space):
+		
 		return self.game.game_board[current_space].connected
 
 	'''
@@ -216,7 +272,11 @@ class Game(object):
 			if self.game.game_board[space].available():
 				move_available = True
 
+		LOG.info("space not available")
+
+
 		if not move_available:
+			LOG.info("unable to make that move")
 			self.game.turn_status = Entity.AWAITING_ACCUSATION_OR_END_TURN
 
 
@@ -242,12 +302,12 @@ class Game(object):
 
 	def check_turn(self, name):
 		if name != self.game.current_player.name:
-			raise SyntaxError
+			raise ErrorServer.InvalidTurnList
 
 
 	def check_end_turn_status(self):
 		if self.game.turn_status != Entity.AWAITING_ACCUSATION_OR_END_TURN:
-			raise SyntaxError
+			raise ErrorServer.InvalidEndTurn
 
 
 	'''
@@ -256,19 +316,19 @@ class Game(object):
 
 	def check_room(self, room):
 		if room not in Entity.ROOMS:
-			raise SyntaxError
+			raise ErrorServer.InvalidMove
 
 	def check_board_available(self, room):
 		if not self.game.game_board[room].available():
-			raise SyntaxError
+			raise ErrorServer.InvalidMove
 
 	def check_board(self, room):
 		if not self.game.game_board[room]:
-			raise SyntaxError
+			raise ErrorServer.InvalidMove
 
 	def check_ifconnected(self, current_space, new_space):
 		if new_space.name not in current_space.connected:
-			raise SyntaxError
+			raise ErrorServer.InvalidMove
 
 
 
@@ -286,7 +346,7 @@ class Game(object):
 
 		current_room = self.get_weapon_current_space(weapon)
 		current_room.weapons.remove(weapon)
-		room.weapons.appednd(weapon)
+		room.weapons.append(weapon)
 
 
 	def get_weapon_current_space(self, weapon):
@@ -303,29 +363,29 @@ class Game(object):
 	def get_suspect_current_space(self, suspect):
 		for space in self.game.game_board:
 			if suspect in self.game.game_board[space].suspects:
-			return self.game.game_board[space]
+				return self.game.game_board[space]
 
 	def check_weapon(self, weapon):
 
 		if weapon not in Entity.WEAPONS:
-			raise SyntaxError
+			raise ErrorServer.InvalidMove
 
 
 	def check_suspect(self, suspect):
 		if suspect not in Entity.SUSPECTS:
-			raise SyntaxError
+			raise ErrorServer.InvalidMove
 
 
 	def check_player_suspect(self, suspect):
 		if suspect != self.game.current_player.suspect:
-			raise SyntaxError
+			raise ErrorServer.InvalidMove
 
 	def check_user(self, name):
 
 		for player in self.game.players:
 			if name == player.name:
 				return # FIXME missing return value
-		raise SyntaxError
+		raise ErrorServer.InvalidMove
 
 
 	def check_card(self, card):
@@ -335,30 +395,30 @@ class Game(object):
 		valid_items += Entity.ROOMS
 
 		if card not in valid_items:
-			raise SyntaxError
+			raise ErrorServer.InvalidMove
 
 	def check_suggestion_card(self, card):
 		cards = self.game.suggestion_response.game_cards
 		player_items = [ card.item for card in cards]
 
 		if card not in player_items:
-			raise SyntaxError
+			raise ErrorServer.InvalidMove
 
 
 
 	def check_suggestion_room(self, room):
 		suspect = self.game.current_player.suspect
 		if suspect not in self.game.game_board[room].suspects:
-			raise SyntaxError
+			raise ErrorServer.InvalidMove
 
 
 	def check_suggestion_player(self, player):
 		if player != self.game.suggestion_response.player:
-			raise SyntaxError
+			raise ErrorServer.InvalidMove
 
 	def check_suggestion_turn_status(self):
 		if self.game.turn_status != Entity.AWAITING_SUGGESTION:
-			raise SyntaxError
+			raise ErrorServer.InvalidMove
 
 
 

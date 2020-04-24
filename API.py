@@ -1,8 +1,6 @@
 #!/usr/bin/python3
 from Server import Game
 
-from Server import Game
-
 game = Game()
 
 class Resource:
@@ -24,6 +22,8 @@ class Resource:
 
         game.start_game()
 
+        print(game.get_weapons_list())
+        '''
         game.check_move_options(game.get_suspect_current_space("Miss Scarlet").name)
         game.make_move("1", "Miss Scarlet", "hall-lounge Passage")
         game.end_turn("1")
@@ -45,6 +45,10 @@ class Resource:
 
         #game.make_suggestion("Miss Scarlet", "Colonel Mustard", "Wrench", "Lounge")
         #game.end_turn("1")
+        '''
+
+
+
 
 
     '''

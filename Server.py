@@ -165,6 +165,10 @@ class Game(object):
 
 	def check_suggestion_responder(self):
 
+
+
+
+
 		for player in self.game.players:
 			if player.name is self.game.current_suggestion.suspect:
 				LOG.info("the suggested is in the game so should move to AWAITING SUGGESTION RESPONE")
@@ -421,6 +425,19 @@ class Game(object):
 			raise ErrorServer.InvalidMove
 
 
+	def get_weapons_list(self): 
+
+        	return Entity.WEAPONS
+
+
+	def get_rooms_list(self): 
+
+			return Entity.ROOMS
+
+
+	def get_suspects_list(self): 
+
+			return Entity.SUSPECTS
 
 
 

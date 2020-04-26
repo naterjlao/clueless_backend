@@ -171,9 +171,9 @@ class Game(object):
 		LOG.info("player made a suggestion move: ")
 
 
-
+	#Helps make_move
+	# Checks to see who can resopnd to the Suggestion
 	def check_suggestion_responder(self):
-
 
 		for player in self.game.players:
 			if player.name is self.game.current_suggestion.suspect:
@@ -257,7 +257,7 @@ class Game(object):
 		#json.dumps(self.game.format(), indent=2)
 	
 
-	# TODO
+	# TODO - adjust so only options not full can be moved to 
 	# Returns a list of available connected rooms based on the current space
 	def check_move_options(self, current_space):
 		
@@ -320,7 +320,7 @@ class Game(object):
 		return turn_index
 
 
-
+	# Checks turn status to make sure the right move is being performed at the right time
 	def check_turn_status(self, status):
 		if self.game.turn_status != status:
 			raise ErrorServer.InvalidEndTurn
@@ -328,12 +328,12 @@ class Game(object):
 		return self.game.turn_status
 
 
-
+	# Checks that the player making the move is 
 	def check_turn(self, name):
 		if name != self.game.current_player.name:
 			raise ErrorServer.InvalidTurnList
 
-
+	#Checks that the turn status is in the ending state, otherwise forces player to make a different moe
 	def check_end_turn_status(self):
 		if self.game.turn_status != Entity.AWAITING_ACCUSATION_OR_END_TURN:
 			raise ErrorServer.InvalidEndTurn

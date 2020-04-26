@@ -55,7 +55,7 @@ class Game(object):
 		LOG.info("started game")
 
 
-		print(json.dumps(self.game.format(), indent=2))
+		#print(json.dumps(self.game.format(), indent=2))
 
     # Wipes out the game instance and clears the players held
 	def end_game(self):
@@ -85,6 +85,8 @@ class Game(object):
 		self.check_board(room)
 		self.check_board_available(room)
 
+
+
 		current_space = self.get_suspect_current_space(suspect)
 		new_space = self.game.game_board[room]
 		self.check_ifconnected(current_space, new_space)
@@ -93,12 +95,19 @@ class Game(object):
 
 		if isinstance(new_space, Entity.Room):
 			self.game.turn_status = Entity.AWAITING_SUGGESTION
+			
+			msg = "{0} to make a suggestion".format(name)
+			self.sendMsgtoAll(msg)
+
 		else:
 			self.game.turn_status = Entity.AWAITING_ACCUSATION_OR_END_TURN
-
+			
+			msg = "{0} to make an accusation or end".format(name)
+			self.sendMsgtoAll(msg)
 		#json.dumps(self.game.format(), indent=2)
 
 		LOG.info("player made a board move: ")
+
 
 
 
@@ -217,6 +226,7 @@ class Game(object):
     # See make_suggestion() for parameter info.
 	def make_accusation(self, name, suspect, weapon, room):
 
+
 		self.check_user(name)
 		self.check_turn(name)
 		self.check_suspect(suspect)
@@ -250,39 +260,34 @@ class Game(object):
 		self.next_turn()
 
 
+		#print(json.dumps(self.game.format(), indent=2))
+
+
 		LOG.info("player ended their turn ")
 
 
-
-		#json.dumps(self.game.format(), indent=2)
-	
 
 	# TODO - adjust so only options not full can be moved to 
 	# Returns a list of available connected rooms based on the current space
 	def check_move_options(self, current_space):
 		
-		'''
 		move_options = list()
-		move_options = self.game.game_board[current_space].connected
+		
+		for room in self.game.game_board[current_space].connected: 
+			if self.game.game_board[room].available(): 
+				move_options.insert(0,room)
 
-		for space in self.game.game_board[current_space].connected
-			if check_board_avaialble(space)
-				move_options.remove(space)
-			else: 
-				pass 
-	
-		#proposed new function
-		#return move_options
-		'''
-		# original function
-		return self.game.game_board[current_space].connected
+		return move_options
 
+		#If need to rollback then just 
+		#return self.game.game_board[current_space].connected
 
 
 	'''
 	Turn Queue Helpers
 	'''
 
+	#TODO
 	def next_turn(self):
 
 		turn_index = self.game.turn_list.index(self.game.current_player)
@@ -301,7 +306,7 @@ class Game(object):
 			if self.game.game_board[space].available():
 				move_available = True
 
-		LOG.info("space not available")
+		LOG.info("Please make a move")
 
 
 		if not move_available:
@@ -403,16 +408,16 @@ class Game(object):
 	def check_weapon(self, weapon):
 
 		if weapon not in Entity.WEAPONS:
-			raise ErrorServer.InvalidMove
+			raise ErrorServer.InvalidCard
 
 	def check_suspect(self, suspect):
 		if suspect not in Entity.SUSPECTS:
-			raise ErrorServer.InvalidMove
+			raise ErrorServer.InvalidCard
 
 	#Checks that make_move is moving the correct playerIds Character
 	def check_player_suspect(self, suspect):
 		if suspect != self.game.current_player.suspect:
-			raise ErrorServer.InvalidMove
+			raise ErrorServer.InvalidSuspect
 
 	# check_user checks if player exists, returns either Nothing or Error 
 	def check_user(self, name):
@@ -420,7 +425,7 @@ class Game(object):
 		for player in self.game.players:
 			if name == player.name:
 				return 
-		raise ErrorServer.InvalidMove
+		raise ErrorServer.InvalidSuspect
 
 
 	def check_card(self, card):
@@ -430,7 +435,7 @@ class Game(object):
 		valid_items += Entity.ROOMS
 
 		if card not in valid_items:
-			raise ErrorServer.InvalidMove
+			raise ErrorServer.InvalidCard
 
 
 	def check_suggestion_card(self, card):
@@ -438,24 +443,57 @@ class Game(object):
 		player_items = [ card.item for card in cards]
 
 		if card not in player_items:
-			raise ErrorServer.InvalidMove
+			raise ErrorServer.InvalidCard
 
 
 	def check_suggestion_room(self, room):
 		suspect = self.game.current_player.suspect
 		if suspect not in self.game.game_board[room].suspects:
-			raise ErrorServer.InvalidMove
+			raise ErrorServer.InvalidSuggestion
 
 
 	def check_suggestion_player(self, player):
 		if player != self.game.suggestion_response.player:
-			raise ErrorServer.InvalidMove
+			raise ErrorServer.InvalidSuggestion
 
 
 	def check_suggestion_turn_status(self):
 		if self.game.turn_status != Entity.AWAITING_SUGGESTION:
-			raise ErrorServer.InvalidMove
+			raise ErrorServer.InvalidSuggestion
 
+
+
+
+	def get_accusation_options(self):
+
+		accusation_options = list()
+		
+		for weapon in Entity.WEAPONS: 
+			self.game.current_player.accusation_options.insert(0,weapon)
+
+		for room in Entity.ROOMS: 
+			self.game.current_player.accusation_options.insert(0,room)
+
+		for suspect in Entity.SUSPECTS: 
+			self.game.current_player.accusation_options.insert(0,suspect)
+		
+		
+			return self.game.current_player.accusation_options
+
+	
+	def get_suggestion_options(self, current_space):
+			
+		suggestion_options = list()
+		room = self.game.game_board[current_space].name
+		self.game.current_player.suggestion_options.insert(0,room)
+
+		for suspect in Entity.SUSPECTS: 
+			self.game.current_player.accusation_options.insert(0,suspect)
+	
+		for weapon in Entity.WEAPONS: 
+			self.game.current_player.accusation_options.insert(0,weapon)
+
+		return self.game.current_player.suggestion_options
 
 
 
@@ -490,6 +528,20 @@ class Game(object):
 		return self.game.current_player.card_seen
 		#print(self.game.current_player.card_hand)
 		#print(self.game.game_board)
+
+
+
+	#add messages to all player.messages
+	def sendMsgtoAll(self, msg): 
+
+		for player in self.game.players:
+			player.messages.insert(0,msg)
+
+	#add messages to all current_player.messages
+	def sendMsgtoOne(self, msg): 
+
+		self.game.current_player.messages.insert(0,msg)
+
 
 
 
@@ -546,4 +598,5 @@ class Cards(object):
 
 
 
+	
 	

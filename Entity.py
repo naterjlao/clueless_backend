@@ -70,7 +70,7 @@ AWAITING_ACCUSATION_OR_END_TURN = "Awaiting Accusation or End of Turn"
 
 class Player(object):
 
-	def __init__(self, name, suspect = None, card_hand = None, card_seen = None):
+	def __init__(self, name, suspect = None, card_hand = None, card_seen = None, messages = None, suggestion_options = None, accusation_options = None):
 
 		self.name = name
 
@@ -86,6 +86,18 @@ class Player(object):
 			self.card_seen = card_seen
 		else:
 			self.card_seen = list()
+		if messages:
+			self.messages = messages
+		else:
+			self.messages = list()
+		if accusation_options:
+			self.accusation_options = accusation_options
+		else:
+			self.accusation_options = list()
+		if suggestion_options:
+			self.suggestion_options = suggestion_options
+		else:
+			self.suggestion_options = list()
 
 
 	def format(self):
@@ -94,7 +106,10 @@ class Player(object):
 			"user": self.name,
 			"suspect": self.suspect,
 			"card_hand": [game_card.format() for game_card in self.card_hand],
-			"card_seen:": [game_card.format() for game_card in self.card_seen]
+			"card_seen:": [game_card.format() for game_card in self.card_seen],
+			"messages": self.messages, 
+			"suggestion_options": self.suggestion_options, 
+			"accusation_options": self.accusation_options
 		}
 
 
@@ -401,5 +416,3 @@ class GameModelBuilder(object):
 				player_dict["card_seen"])
 
 		return [Player(**player_dict) for player_dict in players]
-
-

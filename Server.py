@@ -55,7 +55,7 @@ class Game(object):
 		LOG.info("started game")
 
 
-		#json.dumps(self.game.format(), indent=2)
+		print(json.dumps(self.game.format(), indent=2))
 
     # Wipes out the game instance and clears the players held
 	def end_game(self):
@@ -103,18 +103,19 @@ class Game(object):
 
 
 
-    # Associates a suspect character for the given <name> of the player.
+    #DECREMENT in favor of select_character
 	def select_suspect(self, name, suspect):
 		self.check_suspect(suspect)
 		self.players[name].suspect = suspect
 
-		
+    #DECREMENT in favor of select_character
 	def start_select_character(self):
 
 		available_characters = {"available_characters": Entity.CHARACTERS}
 		return available_characters		
 		
-		
+
+	# Associates a suspect character for the given <name> of the player.
 	def select_character(self, name, suspect):
 
 		self.check_character(suspect)
@@ -124,6 +125,7 @@ class Game(object):
 		available_characters = {"available_characters": Entity.CHARACTERS}
 		return available_characters
 
+	#Helper for select_character
 	def check_character(self, suspect):
 		if suspect not in Entity.CHARACTERS:
 			raise ErrorServer.InvalidMove
@@ -133,6 +135,13 @@ class Game(object):
     # <suspect> : the suspect that is called out in the suggestion
     # <weapon> : the weapon that is called out in the suggestion
     # <room> : the room that is called out in the suggestion
+
+    
+    # gamestate.turn_status is changed to AWAITING_SUGGESTION_RESPONSE
+    # gamestate.check_suggestion_player is assigned PlayerId and they must respond to suggestion
+    # next see suggestion_response method below
+
+
 	def make_suggestion(self, name, suspect, weapon, room):
 
 		self.check_user(name)
@@ -166,9 +175,6 @@ class Game(object):
 	def check_suggestion_responder(self):
 
 
-
-
-
 		for player in self.game.players:
 			if player.name is self.game.current_suggestion.suspect:
 				LOG.info("the suggested is in the game so should move to AWAITING SUGGESTION RESPONE")
@@ -182,6 +188,7 @@ class Game(object):
     # Performs a counter response to the suggestion
     # <player> : the player performing the counter
     # <card> : the card used for countering the suggestion
+
 	def respond_suggestion(self, player, card):
 
 		self.check_user(player)
@@ -248,11 +255,29 @@ class Game(object):
 
 
 		#json.dumps(self.game.format(), indent=2)
-				
+	
+
+	# TODO
 	# Returns a list of available connected rooms based on the current space
 	def check_move_options(self, current_space):
 		
+		'''
+		move_options = list()
+		move_options = self.game.game_board[current_space].connected
+
+		for space in self.game.game_board[current_space].connected
+			if check_board_avaialble(space)
+				move_options.remove(space)
+			else: 
+				pass 
+	
+		#proposed new function
+		#return move_options
+		'''
+		# original function
 		return self.game.game_board[current_space].connected
+
+
 
 	'''
 	Turn Queue Helpers
@@ -286,7 +311,7 @@ class Game(object):
 
 
 	def next_player_index(self):
-		turn_index = self.game.turn_lsit.index(self.game.current_player)
+		turn_index = self.game.turn_list.index(self.game.current_player)
 		if turn_index < (len(self.game.turn_list)-1):
 			turn_index += 1
 		else:
@@ -401,6 +426,7 @@ class Game(object):
 		if card not in valid_items:
 			raise ErrorServer.InvalidMove
 
+
 	def check_suggestion_card(self, card):
 		cards = self.game.suggestion_response.game_cards
 		player_items = [ card.item for card in cards]
@@ -438,6 +464,22 @@ class Game(object):
 	def get_suspects_list(self): 
 
 			return Entity.SUSPECTS
+
+
+	def get_player_card_hand(self): 
+
+		return self.game.current_player.card_hand
+		#print(self.game.current_player.card_seen)
+
+
+
+	def get_player_card_seen(self): 
+
+		return self.game.current_player.card_seen
+		#print(self.game.current_player.card_hand)
+		#print(self.game.game_board)
+
+
 
 
 

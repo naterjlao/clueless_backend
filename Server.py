@@ -63,7 +63,15 @@ class Game(object):
 				
 				playerstates.append(state)
 		return playerstates
-		
+	
+	# Returns a list
+	# Within the list are dictionaries
+	# Each dictionary must have:
+	# - playerId : string
+	# - payload : dict
+	# Within payload:
+	# - choices: a list of strings that the playerId can go to based on the current state
+	# The list contains the dictionaries for ALL registered players
 	def getMoveOptions(self):
 		return [] # TODO
 		
@@ -82,9 +90,14 @@ class Game(object):
 	def getMessages(self):
 		return [] # TODO
 		
+	# This does nothing, but keep this here to catch the import call
 	def enteredGame(self,playerId):
-		pass # DO NOTHING
+		pass
 	
+	# Moves the <playerId> to the <choice> position
+	# If the player can move to the position, the game updates accordingly
+	# If the player cannot move to the position, the player's message field is updated and no updates are made
+	# Return nothing
 	def selectMove(self,playerId,choice):
 		pass # TODO
 		

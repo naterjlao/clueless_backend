@@ -49,16 +49,45 @@ class Game(object):
 	# 
 	def getPlayerstates(self):
 		playerstates = []
-		for player in self.game.players:
-			pstate = {}
-			pstate["playerId"] = player["user"]
-			pstate["suspect"] = player["suspect"]
-			pstate["isSuggestionValid"] = False # TODO this needs to be replaced with a function that determines if the Player can perform a suggestion
-			playerstates.append(pstate)
+		if (self.player != None):
+			for player in self.players:
+				pstate = {}
+				pstate["playerId"] = player["user"]
+				pstate["suspect"] = player["suspect"]
+				pstate["isSuggestionValid"] = False # TODO this needs to be replaced with a function that determines if the Player can perform a suggestion
+				playerstates.append(pstate)
 		return playerstates
 		
-
-
+	def getMoveOptions(self):
+		return [] # TODO
+		
+	def getSuggestionOptions(self):
+		return [] # TODO
+		
+	def getAccusationOptions(self):
+		return [] # TODO
+		
+	def getChecklists(self):
+		return [] # TODO
+		
+	def getMessages(self):
+		return [] # TODO
+		
+	def enteredGame(self):
+		pass # DO NOTHING
+	
+	def selectMove(self,playerId,choice):
+		pass # TODO
+		
+	def selectCard(self,playerId,choice):
+		pass # TODO
+		
+	def disproveSuggestion(self,playerId,card,type,cannotDisprove)
+		pass # TODO
+	
+	def disproveAccusation(self,playerId,card,type,cannotDisprove)
+		pass # TODO			
+			
     # Adds a player with a given name
     # The <name> is used as identifier for the player.
     # This function MUST be called before start_game()

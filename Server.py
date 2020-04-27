@@ -460,12 +460,6 @@ class Game(object):
 	def check_suggestion_turn_status(self):
 		if self.game.turn_status != Entity.AWAITING_SUGGESTION:
 			raise ErrorServer.InvalidSuggestion
-<<<<<<< HEAD
-
-=======
->>>>>>> master
-
-
 
 	def get_accusation_options(self):
 

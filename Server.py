@@ -26,7 +26,7 @@ class Game(object):
 		# The game instance variable would not be intialized until
 		# some function is called, spoof the client for now
 		if (self.game == None):
-			game = Entity.GameModel(["temporary"],["workaround"]).format()
+			game = Entity.GameModel(["temporary"],["workaround"])
 		else:
 			game = self.game
 
@@ -34,7 +34,7 @@ class Game(object):
 		gamestate["currentPlayerId"] = game.current_player
 		gamestate["turnStatus"] = game.turn_status
 		gamestate["suggestionCharacter"] = None # TODO this is the character that is CURRENTLY under suggestion
-		gamestate["availableCharacters"] = self.get_available_characters(self)
+		gamestate["availableCharacters"] = self.get_available_characters()
 		
 		return gamestate
 
@@ -82,7 +82,7 @@ class Game(object):
 	def getMessages(self):
 		return [] # TODO
 		
-	def enteredGame(self):
+	def enteredGame(self,playerId):
 		pass # DO NOTHING
 	
 	def selectMove(self,playerId,choice):
@@ -189,9 +189,9 @@ class Game(object):
 		self.check_suspect(suspect)
 		self.players[name].suspect = suspect
 
-	# Returns a dictionary of the CURRENT available characters in the game
+	# Returns a list of the CURRENT available characters in the game
 	def get_available_characters(self):
-		return {"available_characters": Entity.CHARACTERS}
+		return Entity.CHARACTERS
 
 	# Associates a suspect character for the given <name> of the player.
 	def select_character(self, name, suspect):

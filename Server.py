@@ -16,17 +16,48 @@ class Game(object):
 
 		self.players = dict()
 		self.game_id = None
-		self.game = None
+		self.game = None   # This is a GameModel
 
 	# Returns the gamestate dictionary object on demand.
 	# This is utilized by the Serverside which is pushed in JSON payload
-	def get_gamestateDict(self):
+	def getGamestate(self):
+		gamestate = {}
 		if (self.game == None):
             # Return a empty dictionary object in the event that start_game() is never called
-			return Entity.GameModel(["temporary"],["workaround"]).format() # FIXME -- this is a workaround, send out a dummy GameModel if game not initialized
+			gamestate = Entity.GameModel(["temporary"],["workaround"]).format() # FIXME -- this is a workaround, send out a dummy GameModel if game not initialized
 		else:
             # Return the dictionary reprsentation of the game.
-			return self.game.format()
+			gamestate["currentPlayerId"] = self.game.current_player
+			gamestate["turnStatus"] = game.turn_status
+			gamestate["suggestionCharacter"] = None # TODO this is the character that is CURRENTLY under suggestion
+			gamestate["availableCharacters"] = get_available_characters(self)
+		return gamestate
+
+	# Returns a dictionary object where:
+	# Key: a Room
+	# Value: the list of players in the room or none
+	def getGameboard(self):
+		gameboard = {}
+		if (self.game != None):
+			for position in self.game.game_board:
+				gameboard[position] = self.game.game_board[position]
+		return gameboard
+
+	# Returns a list of dictionary objects for each player
+	# For each dictionary:
+	# playerId: <string>
+	# 
+	def getPlayerstates(self):
+		playerstates = []
+		for player in self.game.players:
+			pstate = {}
+			pstate["playerId"] = player["user"]
+			pstate["suspect"] = player["suspect"]
+			pstate["isSuggestionValid"] = False # TODO this needs to be replaced with a function that determines if the Player can perform a suggestion
+			playerstates.append(pstate)
+		return playerstates
+		
+
 
     # Adds a player with a given name
     # The <name> is used as identifier for the player.
@@ -112,17 +143,14 @@ class Game(object):
 
 
 
-    #DECREMENT in favor of select_character
+    #DEPRECATE in favor of select_character
 	def select_suspect(self, name, suspect):
 		self.check_suspect(suspect)
 		self.players[name].suspect = suspect
 
-    #DECREMENT in favor of select_character
-	def start_select_character(self):
-
-		available_characters = {"available_characters": Entity.CHARACTERS}
-		return available_characters		
-		
+	# Returns a dictionary of the CURRENT available characters in the game
+	def get_available_characters(self):
+		return {"available_characters": Entity.CHARACTERS}
 
 	# Associates a suspect character for the given <name> of the player.
 	def select_character(self, name, suspect):

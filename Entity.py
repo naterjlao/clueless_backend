@@ -416,5 +416,3 @@ class GameModelBuilder(object):
 				player_dict["card_seen"])
 
 		return [Player(**player_dict) for player_dict in players]
-
-

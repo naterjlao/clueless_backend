@@ -16,24 +16,109 @@ class Game(object):
 
 		self.players = dict()
 		self.game_id = None
-		self.game = None
+		self.game = None   # This is a GameModel
 
 	# Returns the gamestate dictionary object on demand.
 	# This is utilized by the Serverside which is pushed in JSON payload
-	def get_gamestateDict(self):
+	def getGamestate(self):
+		gamestate = {}
+		
+		# The game instance variable would not be intialized until
+		# some function is called, spoof the client for now
 		if (self.game == None):
-            # Return a empty dictionary object in the event that start_game() is never called
-			return Entity.GameModel(["temporary"],["workaround"]).format() # FIXME -- this is a workaround, send out a dummy GameModel if game not initialized
+			game = Entity.GameModel(["temporary"],["workaround"])
 		else:
-            # Return the dictionary reprsentation of the game.
-			return self.game.format()
+			game = self.game
 
+		# Return the dictionary reprsentation of the game.
+		gamestate["currentPlayerId"] = game.current_player
+		gamestate["turnStatus"] = game.turn_status
+		gamestate["suggestionCharacter"] = None # TODO this is the character that is CURRENTLY under suggestion
+		gamestate["availableCharacters"] = self.get_available_characters()
+		
+		return gamestate
+
+	# Returns a dictionary object where:
+	# Key: a Room
+	# Value: the list of players in the room or none
+	def getGameboard(self):
+		gameboard = {}
+		if (self.game != None):
+			for position in self.game.game_board:
+				gameboard[position] = self.game.game_board[position]
+		return gameboard
+
+	# Returns a list of dictionary objects for each player
+	def getPlayerstates(self):
+		playerstates = []
+		if (self.players != None):
+			for name in self.players:
+				payload = {}
+				payload["suspect"] = self.players[name].suspect
+				payload["isSuggestionValid"] = False # TODO this needs to be replaced with a function that determines if the Player can perform a suggestion
+				
+				state = {}
+				state["playerId"] = name
+				state["payload"] = payload
+				
+				playerstates.append(state)
+		return playerstates
+	
+	# Returns a list
+	# Within the list are dictionaries
+	# Each dictionary must have:
+	# - playerId : string
+	# - payload : dict
+	# Within payload:
+	# - choices: a list of strings that the playerId can go to based on the current state
+	# The list contains the dictionaries for ALL registered players
+	def getMoveOptions(self):
+		return [] # TODO
+		
+	def getSuggestionOptions(self):
+		return [] # TODO
+		
+	def getAccusationOptions(self):
+		return [] # TODO
+		
+	def getChecklists(self):
+		return [] # TODO
+
+	def getCardlists(self):
+		return [] # TODO
+
+	def getMessages(self):
+		return [] # TODO
+		
+	# This does nothing, but keep this here to catch the import call
+	def enteredGame(self,playerId):
+		pass
+	
+	# Moves the <playerId> to the <choice> position
+	# If the player can move to the position, the game updates accordingly
+	# If the player cannot move to the position, the player's message field is updated and no updates are made
+	# Return nothing
+	def selectMove(self,playerId,choice):
+		pass # TODO
+		
+	def selectCard(self,playerId,choice):
+		pass # TODO
+		
+	def disproveSuggestion(self,playerId,card,type,cannotDisprove):
+		pass # TODO
+	
+	def disproveAccusation(self,playerId,card,type,cannotDisprove):
+		pass # TODO			
+			
     # Adds a player with a given name
     # The <name> is used as identifier for the player.
     # This function MUST be called before start_game()
 	def add_player(self, name):
 
 		self.players[name] = Entity.Player(name)
+
+	def remove_player(self,playerId):
+		pass # TODO
 
     # Initiates the start of the game.
     # Cards are given out to each of the players
@@ -112,17 +197,14 @@ class Game(object):
 
 
 
-    #DECREMENT in favor of select_character
+    #DEPRECATE in favor of select_character
 	def select_suspect(self, name, suspect):
 		self.check_suspect(suspect)
 		self.players[name].suspect = suspect
 
-    #DECREMENT in favor of select_character
-	def start_select_character(self):
-
-		available_characters = {"available_characters": Entity.CHARACTERS}
-		return available_characters		
-		
+	# Returns a list of the CURRENT available characters in the game
+	def get_available_characters(self):
+		return Entity.CHARACTERS
 
 	# Associates a suspect character for the given <name> of the player.
 	def select_character(self, name, suspect):
@@ -461,6 +543,36 @@ class Game(object):
 		if self.game.turn_status != Entity.AWAITING_SUGGESTION:
 			raise ErrorServer.InvalidSuggestion
 
+	def get_accusation_options(self):
+
+		accusation_options = list()
+		
+		for weapon in Entity.WEAPONS: 
+			self.game.current_player.accusation_options.insert(0,weapon)
+
+		for room in Entity.ROOMS: 
+			self.game.current_player.accusation_options.insert(0,room)
+
+		for suspect in Entity.SUSPECTS: 
+			self.game.current_player.accusation_options.insert(0,suspect)
+		
+		
+			return self.game.current_player.accusation_options
+
+	
+	def get_suggestion_options(self, current_space):
+			
+		suggestion_options = list()
+		room = self.game.game_board[current_space].name
+		self.game.current_player.suggestion_options.insert(0,room)
+
+		for suspect in Entity.SUSPECTS: 
+			self.game.current_player.accusation_options.insert(0,suspect)
+	
+		for weapon in Entity.WEAPONS: 
+			self.game.current_player.accusation_options.insert(0,weapon)
+
+		return self.game.current_player.suggestion_options
 
 
 
@@ -598,4 +710,5 @@ class Cards(object):
 
 
 
+	
 	

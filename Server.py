@@ -460,7 +460,43 @@ class Game(object):
 	def check_suggestion_turn_status(self):
 		if self.game.turn_status != Entity.AWAITING_SUGGESTION:
 			raise ErrorServer.InvalidSuggestion
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
+
+
+
+	def get_accusation_options(self):
+
+		accusation_options = list()
+		
+		for weapon in Entity.WEAPONS: 
+			self.game.current_player.accusation_options.insert(0,weapon)
+
+		for room in Entity.ROOMS: 
+			self.game.current_player.accusation_options.insert(0,room)
+
+		for suspect in Entity.SUSPECTS: 
+			self.game.current_player.accusation_options.insert(0,suspect)
+		
+		
+			return self.game.current_player.accusation_options
+
+	
+	def get_suggestion_options(self, current_space):
+			
+		suggestion_options = list()
+		room = self.game.game_board[current_space].name
+		self.game.current_player.suggestion_options.insert(0,room)
+
+		for suspect in Entity.SUSPECTS: 
+			self.game.current_player.accusation_options.insert(0,suspect)
+	
+		for weapon in Entity.WEAPONS: 
+			self.game.current_player.accusation_options.insert(0,weapon)
+
+		return self.game.current_player.suggestion_options
 
 
 

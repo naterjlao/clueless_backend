@@ -22,15 +22,20 @@ class Game(object):
 	# This is utilized by the Serverside which is pushed in JSON payload
 	def getGamestate(self):
 		gamestate = {}
+		
+		# The game instance variable would not be intialized until
+		# some function is called, spoof the client for now
 		if (self.game == None):
-            # Return a empty dictionary object in the event that start_game() is never called
-			gamestate = Entity.GameModel(["temporary"],["workaround"]).format() # FIXME -- this is a workaround, send out a dummy GameModel if game not initialized
+			game = Entity.GameModel(["temporary"],["workaround"]).format()
 		else:
-            # Return the dictionary reprsentation of the game.
-			gamestate["currentPlayerId"] = self.game.current_player
-			gamestate["turnStatus"] = game.turn_status
-			gamestate["suggestionCharacter"] = None # TODO this is the character that is CURRENTLY under suggestion
-			gamestate["availableCharacters"] = get_available_characters(self)
+			game = self.game
+
+		# Return the dictionary reprsentation of the game.
+		gamestate["currentPlayerId"] = game.current_player
+		gamestate["turnStatus"] = game.turn_status
+		gamestate["suggestionCharacter"] = None # TODO this is the character that is CURRENTLY under suggestion
+		gamestate["availableCharacters"] = self.get_available_characters(self)
+		
 		return gamestate
 
 	# Returns a dictionary object where:
@@ -44,18 +49,19 @@ class Game(object):
 		return gameboard
 
 	# Returns a list of dictionary objects for each player
-	# For each dictionary:
-	# playerId: <string>
-	# 
 	def getPlayerstates(self):
 		playerstates = []
 		if (self.players != None):
-			for player in self.players:
-				pstate = {}
-				pstate["playerId"] = player["user"]
-				pstate["suspect"] = player["suspect"]
-				pstate["isSuggestionValid"] = False # TODO this needs to be replaced with a function that determines if the Player can perform a suggestion
-				playerstates.append(pstate)
+			for name in self.players:
+				payload = {}
+				payload["suspect"] = self.players[name].suspect
+				payload["isSuggestionValid"] = False # TODO this needs to be replaced with a function that determines if the Player can perform a suggestion
+				
+				state = {}
+				state["playerId"] = name
+				state["payload"] = payload
+				
+				playerstates.append(state)
 		return playerstates
 		
 	def getMoveOptions(self):
@@ -97,6 +103,9 @@ class Game(object):
 	def add_player(self, name):
 
 		self.players[name] = Entity.Player(name)
+
+	def remove_player(self,playerId):
+		pass # TODO
 
     # Initiates the start of the game.
     # Cards are given out to each of the players

@@ -49,7 +49,7 @@ class Game(object):
 	# 
 	def getPlayerstates(self):
 		playerstates = []
-		if (self.player != None):
+		if (self.players != None):
 			for player in self.players:
 				pstate = {}
 				pstate["playerId"] = player["user"]
@@ -69,7 +69,10 @@ class Game(object):
 		
 	def getChecklists(self):
 		return [] # TODO
-		
+
+	def getCardlists(self):
+		return [] # TODO
+
 	def getMessages(self):
 		return [] # TODO
 		
@@ -82,10 +85,10 @@ class Game(object):
 	def selectCard(self,playerId,choice):
 		pass # TODO
 		
-	def disproveSuggestion(self,playerId,card,type,cannotDisprove)
+	def disproveSuggestion(self,playerId,card,type,cannotDisprove):
 		pass # TODO
 	
-	def disproveAccusation(self,playerId,card,type,cannotDisprove)
+	def disproveAccusation(self,playerId,card,type,cannotDisprove):
 		pass # TODO			
 			
     # Adds a player with a given name

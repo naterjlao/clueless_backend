@@ -54,6 +54,7 @@ class Game(object):
 		if (self.players != None):
 			for name in self.players:
 				payload = {}
+				payload["playerId"] = name
 				payload["suspect"] = self.players[name].suspect
 				payload["isSuggestionValid"] = False # TODO this needs to be replaced with a function that determines if the Player can perform a suggestion
 				

@@ -75,17 +75,23 @@ class Game(object):
 	# - choices: a list of strings that the playerId can go to based on the current state
 	# The list contains the dictionaries for ALL registered players
 	def getMoveOptions(self):
+		moveOptions = []
+		if (self.players != None):
+			for playerId in self.players:
+				
+				# Get the list of available postions the player can go to
+				choices = list()
+				current_space = self.get_suspect_current_space(self.game.current_player.suspect)				
+				for room in self.game.game_board[current_space].connected: 
+					if self.game.game_board[room].available(): 
+						choices.insert(0,room)
 
-		# copied from check_move_options
-		move_options = list()
-
-		current_space = self.get_suspect_current_space(self.game.current_player.suspect)
-		
-		for room in self.game.game_board[current_space].connected: 
-			if self.game.game_board[room].available(): 
-				move_options.insert(0,room)
-
-		return move_options
+				payload = {"choices": choices} # the playload is a singleton with only choices
+				playerOption = {}
+				playerOption["playerId"] = playerId
+				playerOption["payload"] = payload
+				moveOptions.append(playerOption) # add to the dict list
+		return moveOptions
 		
 	def getSuggestionOptions(self):
 

@@ -33,7 +33,7 @@ class Game(object):
 		# Return the dictionary reprsentation of the game.
 		gamestate["currentPlayerId"] = game.current_player
 		gamestate["turnStatus"] = game.turn_status
-		gamestate["suggestionCharacter"] = None # TODO this is the character that is CURRENTLY under suggestion
+		gamestate["suggestionCharacter"] = self.game.check_suggestion_player # TODO this is the character that is CURRENTLY under suggestion
 		gamestate["availableCharacters"] = self.get_available_characters()
 		
 		return gamestate
@@ -56,13 +56,14 @@ class Game(object):
 				payload = {}
 				payload["playerId"] = name
 				payload["suspect"] = self.players[name].suspect
-				payload["isSuggestionValid"] = False # TODO this needs to be replaced with a function that determines if the Player can perform a suggestion
+				payload["isSuggestionValid"] = self.check_suggestion_turn_status() # TODO this needs to be replaced with a function that determines if the Player can perform a suggestion
 				
 				state = {}
 				state["playerId"] = name
 				state["payload"] = payload
 				
 				playerstates.append(state)
+		
 		return playerstates
 	
 	# Returns a list
@@ -74,22 +75,60 @@ class Game(object):
 	# - choices: a list of strings that the playerId can go to based on the current state
 	# The list contains the dictionaries for ALL registered players
 	def getMoveOptions(self):
-		return [] # TODO
+
+		# copied from check_move_options
+		move_options = list()
+		
+		for room in self.game.game_board[current_space].connected: 
+			if self.game.game_board[room].available(): 
+				move_options.insert(0,room)
+
+		return move_options
 		
 	def getSuggestionOptions(self):
-		return [] # TODO
+
+		# copied from check_suggestion_options
+		suggestion_options = list()
+		room = self.game.game_board[current_space].name
+		self.game.current_player.suggestion_options.insert(0,room)
+
+		for suspect in Entity.SUSPECTS: 
+			self.game.current_player.accusation_options.insert(0,suspect)
+	
+		for weapon in Entity.WEAPONS: 
+			self.game.current_player.accusation_options.insert(0,weapon)
+
+		return self.game.current_player.suggestion_options
+
 		
 	def getAccusationOptions(self):
-		return [] # TODO
+
+
+		# just copied from get_accusation_options
+		accusation_options = list()
+		
+		for weapon in Entity.WEAPONS: 
+			self.game.current_player.accusation_options.insert(0,weapon)
+
+		for room in Entity.ROOMS: 
+			self.game.current_player.accusation_options.insert(0,room)
+
+		for suspect in Entity.SUSPECTS: 
+			self.game.current_player.accusation_options.insert(0,suspect)
+		
+		
+		return self.game.current_player.accusation_options
 		
 	def getChecklists(self):
-		return [] # TODO
+		#copied from get_player_cardhand
+		return self.game.current_player.card_seen
 
 	def getCardlists(self):
-		return [] # TODO
+		#copied from get_player_cardhand
+		return self.game.current_player.card_hand
 
 	def getMessages(self):
-		return [] # TODO
+		return self.game.current_player.messages
 		
 	# This does nothing, but keep this here to catch the import call
 	def enteredGame(self,playerId):
@@ -100,16 +139,21 @@ class Game(object):
 	# If the player cannot move to the position, the player's message field is updated and no updates are made
 	# Return nothing
 	def selectMove(self,playerId,choice):
-		pass # TODO
-		
+		pass # TODO - Nate
+
+
+
 	def selectCard(self,playerId,choice):
-		pass # TODO
+		pass # TODO - what is this supposed to do? 
 		
+
 	def disproveSuggestion(self,playerId,card,type,cannotDisprove):
-		pass # TODO
+		pass # TODO 
 	
+
+
 	def disproveAccusation(self,playerId,card,type,cannotDisprove):
-		pass # TODO			
+		pass # ?	- no such thing
 			
     # Adds a player with a given name
     # The <name> is used as identifier for the player.
@@ -118,8 +162,11 @@ class Game(object):
 
 		self.players[name] = Entity.Player(name)
 
-	def remove_player(self,playerId):
-		pass # TODO
+	def remove_player(self): #NOTE - took out playerId
+		lost_player = self.game.current_player
+		self.next_turn()
+		self.game.turn_list.remove(lost_player)
+		pass
 
     # Initiates the start of the game.
     # Cards are given out to each of the players
@@ -350,7 +397,6 @@ class Game(object):
 
 
 
-	# TODO - adjust so only options not full can be moved to 
 	# Returns a list of available connected rooms based on the current space
 	def check_move_options(self, current_space):
 		
@@ -369,8 +415,6 @@ class Game(object):
 	'''
 	Turn Queue Helpers
 	'''
-
-	#TODO
 	def next_turn(self):
 
 		turn_index = self.game.turn_list.index(self.game.current_player)
@@ -558,7 +602,7 @@ class Game(object):
 			self.game.current_player.accusation_options.insert(0,suspect)
 		
 		
-			return self.game.current_player.accusation_options
+		return self.game.current_player.accusation_options
 
 	
 	def get_suggestion_options(self, current_space):

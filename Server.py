@@ -141,11 +141,10 @@ class Game(object):
 	# If the player cannot move to the position, the player's message field is updated and no updates are made
 	# Return nothing
 	def selectMove(self,playerId,choice):
-
-		self.choice = choice
-		self.playerId = playerId
-		suspect = self.game.current_player.suspect
-		make_move(self, playerId, suspect, choice):
+		# observe that make_move needs playerId, suspect and choice
+		# the frontend is only giving us playerId and choice
+		suspect = self.players[playerId].suspect
+		self.make_move(playerId,suspect,choice)
 
 
 	def selectCard(self,playerId,choice):

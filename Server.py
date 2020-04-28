@@ -139,8 +139,13 @@ class Game(object):
 	# If the player cannot move to the position, the player's message field is updated and no updates are made
 	# Return nothing
 	def selectMove(self,playerId,choice):
-		pass # TODO - Nate
 
+		self.choice = choice
+		self.playerId = playerId
+		suspect = self.game.current_player.suspect
+		make_move(self, playerId, suspect, choice):
+
+		pass
 
 
 	def selectCard(self,playerId,choice):

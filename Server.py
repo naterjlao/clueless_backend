@@ -158,7 +158,7 @@ class Game(object):
 
 
 	def disproveAccusation(self,playerId,card,type,cannotDisprove):
-		pass # ?	- no such thing
+		pass # no such thing
 			
     # Adds a player with a given name
     # The <name> is used as identifier for the player.

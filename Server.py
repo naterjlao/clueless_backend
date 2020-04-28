@@ -33,7 +33,7 @@ class Game(object):
 		# Return the dictionary reprsentation of the game.
 		gamestate["currentPlayerId"] = game.current_player
 		gamestate["turnStatus"] = game.turn_status
-		gamestate["suggestionCharacter"] = self.game.check_suggestion_player # TODO this is the character that is CURRENTLY under suggestion
+		gamestate["suggestionCharacter"] = None #self.game.check_suggestion_player # TODO isn't this a function?
 		gamestate["availableCharacters"] = self.get_available_characters()
 		
 		return gamestate
@@ -56,7 +56,7 @@ class Game(object):
 				payload = {}
 				payload["playerId"] = name
 				payload["suspect"] = self.players[name].suspect
-				payload["isSuggestionValid"] = self.check_suggestion_turn_status() # TODO this needs to be replaced with a function that determines if the Player can perform a suggestion
+				payload["isSuggestionValid"] = self.check_suggestion_turn_status() # TODO I am guessing this is a bool
 				
 				state = {}
 				state["playerId"] = name
@@ -94,7 +94,8 @@ class Game(object):
 		return moveOptions
 		
 	def getSuggestionOptions(self):
-
+		pass
+		'''
 		# copied from check_suggestion_options
 		suggestion_options = list()
 		room = self.game.game_board[current_space].name
@@ -107,11 +108,11 @@ class Game(object):
 			self.game.current_player.accusation_options.insert(0,weapon)
 
 		return self.game.current_player.suggestion_options
-
+		'''
 		
 	def getAccusationOptions(self):
-
-
+		pass
+		'''
 		# just copied from get_accusation_options
 		accusation_options = list()
 		
@@ -126,17 +127,21 @@ class Game(object):
 		
 		
 		return self.game.current_player.accusation_options
+		'''
 		
 	def getChecklists(self):
+		pass
 		#copied from get_player_cardhand
-		return self.game.current_player.card_seen
+		#return self.game.current_player.card_seen
 
 	def getCardlists(self):
+		pass
 		#copied from get_player_cardhand
-		return self.game.current_player.card_hand
+		#return self.game.current_player.card_hand
 
 	def getMessages(self):
-		return self.game.current_player.messages
+		pass
+		#return self.game.current_player.messages
 		
 	# This does nothing, but keep this here to catch the import call
 	def enteredGame(self,playerId):
@@ -169,7 +174,6 @@ class Game(object):
     # The <name> is used as identifier for the player.
     # This function MUST be called before start_game()
 	def add_player(self, name):
-
 		self.players[name] = Entity.Player(name)
 
 	def remove_player(self): #NOTE - took out playerId

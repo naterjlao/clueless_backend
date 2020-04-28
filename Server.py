@@ -94,7 +94,7 @@ class Game(object):
 		return moveOptions
 		
 	def getSuggestionOptions(self):
-		pass
+		return []
 		'''
 		# copied from check_suggestion_options
 		suggestion_options = list()
@@ -111,7 +111,7 @@ class Game(object):
 		'''
 		
 	def getAccusationOptions(self):
-		pass
+		return []
 		'''
 		# just copied from get_accusation_options
 		accusation_options = list()
@@ -130,17 +130,17 @@ class Game(object):
 		'''
 		
 	def getChecklists(self):
-		pass
+		return []
 		#copied from get_player_cardhand
 		#return self.game.current_player.card_seen
 
 	def getCardlists(self):
-		pass
+		return []
 		#copied from get_player_cardhand
 		#return self.game.current_player.card_hand
 
 	def getMessages(self):
-		pass
+		return []
 		#return self.game.current_player.messages
 		
 	# This does nothing, but keep this here to catch the import call
@@ -253,9 +253,6 @@ class Game(object):
 		#json.dumps(self.game.format(), indent=2)
 
 		LOG.info("player made a board move: ")
-
-
-
 
 
     #DEPRECATE in favor of select_character

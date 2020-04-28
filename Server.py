@@ -56,7 +56,7 @@ class Game(object):
 				payload = {}
 				payload["playerId"] = name
 				payload["suspect"] = self.players[name].suspect
-				payload["isSuggestionValid"] = self.check_suggestion_turn_status() # TODO I am guessing this is a bool
+				payload["isSuggestionValid"] = False #self.check_suggestion_turn_status() # TODO I am guessing this is a bool
 				
 				state = {}
 				state["playerId"] = name
@@ -76,12 +76,12 @@ class Game(object):
 	# The list contains the dictionaries for ALL registered players
 	def getMoveOptions(self):
 		moveOptions = []
-		if (self.players != None):
+		if (self.players != None and self.game != None):
 			for playerId in self.players:
 				
 				# Get the list of available postions the player can go to
 				choices = list()
-				current_space = self.get_suspect_current_space(self.game.current_player.suspect)				
+				current_space = self.get_suspect_current_space(playerId)				
 				for room in self.game.game_board[current_space].connected: 
 					if self.game.game_board[room].available(): 
 						choices.insert(0,room)
@@ -177,10 +177,12 @@ class Game(object):
 		self.players[name] = Entity.Player(name)
 
 	def remove_player(self): #NOTE - took out playerId
-		lost_player = self.game.current_player
-		self.next_turn()
+		pass # DISABLE BC BROKEN
+		'''
+		lost_player = self.game.current_player # Nate - I have no idea why we are removing the current player? 
+		self.next_turn()                       # this would mean ANYONE can remove the current player, but ok I guess
 		self.game.turn_list.remove(lost_player)
-
+		'''
     # Initiates the start of the game.
     # Cards are given out to each of the players
 	def start_game(self):

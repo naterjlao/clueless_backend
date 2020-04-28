@@ -78,6 +78,8 @@ class Game(object):
 
 		# copied from check_move_options
 		move_options = list()
+
+		current_space = self.get_suspect_current_space(self.game.current_player.suspect)
 		
 		for room in self.game.game_board[current_space].connected: 
 			if self.game.game_board[room].available(): 
@@ -145,8 +147,6 @@ class Game(object):
 		suspect = self.game.current_player.suspect
 		make_move(self, playerId, suspect, choice):
 
-		pass
-
 
 	def selectCard(self,playerId,choice):
 		pass # TODO - what is this supposed to do? 
@@ -171,7 +171,6 @@ class Game(object):
 		lost_player = self.game.current_player
 		self.next_turn()
 		self.game.turn_list.remove(lost_player)
-		pass
 
     # Initiates the start of the game.
     # Cards are given out to each of the players

@@ -25,7 +25,7 @@ class Game:
 	# This must be intialized before any requests or signals are in process
 	def __init__(self):
 		# The actual bulk of the game is managed and represented here
-		self.players = None
+		self.playerlist = None
 		self.gameboard = None
 		self.cardManager = None
 		
@@ -35,18 +35,18 @@ class Game:
 		self.suggestionCharacter = None
 		self.availableCharacters = None
 		
-		self.setupGame()
+		self.initializeGame()
 
 	# Debugger printout
 	def __str__(self):
-		str = ""
-		str+= "GAMEBOARD"
-		str+= str(self.gameboard)
-		str+= "------------------------"
-		str+= "PLAYER LIST"
-		str+= str(self.players)
-		str+= "------------------------"
-		return str
+		ret = ""
+		ret+= "GAMEBOARD"                + "\n"
+		ret+= str(self.gameboard)        + "\n"
+		ret+= "------------------------" + "\n"
+		ret+= "PLAYER LIST"              + "\n"
+		ret+= str(self.playerlist)       + "\n"
+		ret+= "------------------------"
+		return ret
 		
 	########################################################################
 	# AUXILIARY METHODS
@@ -54,8 +54,8 @@ class Game:
 	
 	# Handles the preparation of a game BEFORE players have entered
 	def initializeGame(self):
-		self.players = PlayerList()
-		self.gameboad = Gameboard()
+		self.playerlist = PlayerList()
+		self.gameboard = Gameboard(self.playerlist)
 		self.cardManager = CardManager()
 		self.turnStatus = "INITIAL"
 		
@@ -75,7 +75,7 @@ class Game:
 	# Updates the games availableCharacters instance
 	# Must be called every time a character is allocated to a player
 	def updateAvailableCharacters(self):
-		self.availableCharacters = self.players.getAvailableCharacters()
+		self.availableCharacters = self.playerlist.getAvailableCharacters()
 		
 	########################################################################
 	# PUBLIC INTERFACE GLOBAL METHOD SENDERS
@@ -108,7 +108,7 @@ class Game:
 	def getPlayerstates(self):
 		# Data preprocessing is needed
 		data = []
-		for elem in self.players.getPlayerstates():
+		for elem in self.playerlist.getPlayerstates():
 			data.append({"playerId":elem.playerId,"dirty":True,"payload":elem})
 		return data
 		
@@ -136,10 +136,10 @@ class Game:
 	# PUBLIC INTERFACE METHODS PROCESSORS
 	########################################################################
 	def addPlayer(self,playerId):
-		self.players.addPlayer(playerId)
+		self.playerlist.addPlayer(playerId)
 	
 	def selectSuspect(self,playerId,suspect):
-		self.players.getPlayer(playerId).setSuspect(suspect)
+		self.playerlist.getPlayer(playerId).setSuspect(suspect)
 
 	# Useless signal, does not matter
 	def enteredGame(self,playerId):

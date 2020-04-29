@@ -6,7 +6,7 @@
 # Author:          Nate Lao (nlao1@jh.edu)
 # Date Created:    4/28/2020
 # Description:
-#			Contains the class declaration of instance objects in the game.
+#			Contains the class definitions for the game.
 #
 ################################################################################			
 from globals import *
@@ -26,7 +26,7 @@ class Gameboard:
 		self.playerlist = playerlist #include a reference to the game's PlayerList instance
 		
 		# Validate the given rooms
-		if len(ROOM) == 0:
+		if len(ROOMS) == 0:
 			raise GameException("you cannot have a board game with no ROOMS")
 		self.dimension = int(len(ROOMS) ** (1/float(2)))
 		if self.dimension ** 2 != len(ROOMS):
@@ -36,7 +36,7 @@ class Gameboard:
 		for idx in range(0,len(ROOMS)):
 			x_coordinate = int(idx % self.dimension)
 			y_coordinate = int(idx / self.dimension)
-			self.rooms.append(Room(name,x_coordinate,y_coordinate))
+			self.rooms.append(Room(ROOMS[idx],x_coordinate,y_coordinate))
 			
 		# TODO THIS is still fucked
 		# Add the passageways to the board
@@ -51,8 +51,66 @@ class Gameboard:
 			# A room that 
 			for elem in candidates:
 		'''
+		
+	
+	def __str__(self):
+		ret = ""
+		bufferspace = 0
+		for name in (ROOMS + SUSPECTS):
+			bufferspace = bufferspace if len(name) < bufferspace else len(name)
+		
+		# Visual output
+		for x in range(0, self.dimension):
+			for idx in range(0,(bufferspace*self.dimension)):
+				ret += "-"
+			ret += "\n"
 			
-			
+			# Printout the room name
+			room_row = []
+			for y in range(0, self.dimension):
+				room_row += self.getRooms()
+				ret += "|"
+				ret += room_row[y].name
+				for idx in range(0,bufferspace - len(room_row[y].name)):
+					ret += " "
+			ret += "|"
+			ret += "\n"
+
+			# Printout the suspect names within the room
+			for rowIdx in range(0,bufferspace):
+				for y in range(0, self.dimension):
+					rowIdx = room_row[y].getPlayers()
+					ret += "|"
+					if rowIdx < len(players):
+						ret += players[rowIdx].suspect
+						for idx in range(0,bufferspace - len(players[rowIdx].suspect)):
+							ret += " "
+					else:
+						for idx in range(0,bufferspace):
+							ret += " "
+				ret += "|"
+				ret += "\n"
+		return ret
+	
+	# Returns a list of Player(s) at the specified location
+	# Argument <position> is a string name
+	# If there is one player, a singleton list is returned
+	# If there is no player, an empty list is returned
+	def getPlayer(self,position):
+		ret = None
+		# Search though rooms
+		for room in self.rooms:
+			if room.name == position:
+				ret = room.getPlayer()
+		
+		if ret == None:
+			# Search through passageways
+			for passway in self.passageways:
+				if room.name == room.getPlayer():
+					ret = passway.getPlayer()
+		return ret
+	
+	
 	# Returns True iff the movement of choice is valid
 	def validMove(self,playerId,choice):
 		pass
@@ -61,9 +119,20 @@ class Gameboard:
 	def movePlayer(self,playerId,choice):
 		pass
 
-	# Returns all rooms on the board
+	# Returns the Room instance at a specified coordinate
+	def getRoom(self,x_coordinate,y_coordinate):
+		target = None
+		# validate coordinate
+		if (not (x_coordinate < self.dimension and y_coordinate < self.dimension)):
+			raise GameException("invalid coordinates")
+		for room in self.rooms:
+			if (room.X == x_coordinate and room.Y == y_coordinate):
+				target = room
+		return target
+		
+	# Returns all Room instances on the board
 	def getRooms(self):
-		pass 
+		return self.rooms
 
 	# Returns a dictionary representation the object as defined in-spec
 	# TODO --- THIS IS NOT CONSISTENT WITH THE FK SPEC ---
@@ -86,7 +155,10 @@ class Room:
 		self.name = name
 		self.X = X
 		self.Y = Y
+		self.secretpassage = None # A Room
 		self.passageways = []
+		self.players = [] 	# list of Player instances that currently occupy the Room
+							# MUST be consistent with Player location
 
 	# Defines the name of the room
 	def setName(self,name):
@@ -95,11 +167,22 @@ class Room:
 	# Adds a connecting passageway
 	def addPassageway(self,passageway):
 		self.passageway.append(passageway)
+		
+	# A Secret Passage is basically a Room
+	def addSecretPassage(self,room):
+		self.secretpassage = room
+		
+	# A Room may be occupied by an unlimited amount of players
+	def isOccupied(self):
+		return False
 	
-	# Returns all valid movement choices based
-	# on 
+	# Returns all potential movement choices based on this Room's position 
 	def getChoices(self):
 		return [] # TODO
+	
+	# Returns a list of all Players in the Room
+	def getPlayers(self):
+		return self.players
 	
 	# Returns True iff the requested choice name
 	# is a valid movement in respect to the board
@@ -116,6 +199,7 @@ class PassageWay:
 		self.roomB = roomB
 		self.name = None
 		self.Name()
+		self.player = None # Only one player can occupy a PassageWay
 	
 	# Defines a the name of the passageway.
 	# This is a lazy approach, we sort the names
@@ -132,6 +216,24 @@ class PassageWay:
 			ret = "%s-%s" % (room1,room2)
 		else:
 			ret = "%s-%s" % (room2,room1)
+	
+	# Returns True if a Player is occupying a Hallway
+	# Only one Player can occupy a Hallway
+	def isOccupied(self):
+		return self.player != None
+	
+	# Returns a singleton list of the Player that
+	# in the Hallway (really a misnomer)
+	def getPlayers(self):
+		return [self.player] if self.player != None else []
+	
+	# Removes the Player from the Hallway.
+	# Returns the Player that was removed
+	# If there was no Player, returns None
+	def removePlayer(self):
+		player = self.player
+		self.player = None
+		return player
 	
 	# Returns True iff the choice is accessible from this passageway
 	def isValid(self,choice):
@@ -155,7 +257,7 @@ class Player:
 		self.state = "IN_PLAY" # "WIN", "LOSE"
 	
 	def __str__(self):
-		return "%s - %s: \"$s\"" % (self.playerId,self.suspect,self.message)
+		return "%s : $s" % (self.playerId, self.suspect)
 		
 	def getID(self):
 		return self.playerId
@@ -197,7 +299,14 @@ class PlayerList:
 		self.availableCharacters = []
 		for suspect in SUSPECTS:
 			self.availableCharacters.append(suspect)
-		
+	
+	def __str__(self):
+		ret = ""
+		for player in self.players:
+			ret += str(player)
+			ret += "\n"
+		return ret
+	
 	# Adds a Player to the PlayerList with playerId
 	# If the player already exists, return False else True
 	def addPlayer(self,playerId):
@@ -274,7 +383,7 @@ class Card:
 # Cards are stored in dictionary that contain:
 # key: the name of the card
 # value: either
-#     - the playerId of the person holding the card
+#     - the <playerId> of the person holding the card
 #     - "UNASSIGNED"
 #     - "CASE_FILE"
 #
@@ -296,7 +405,9 @@ class CardManager:
 # There shall only be one CaseFile per instance of a game.
 # The values assigned during initialization MUST NOT BE CHANGED
 # The CaseFile must contain 1 card from each type:
-# 
+# - suspect
+# - weapon
+# - room
 class CaseFile:
 	def __init__(self,suspectCard,roomCard,weaponCard):
 		self.suspectCard = suspectCard

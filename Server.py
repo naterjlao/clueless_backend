@@ -33,7 +33,10 @@ class Game(object):
 		# Return the dictionary reprsentation of the game.
 		gamestate["currentPlayerId"] = game.current_player
 		gamestate["turnStatus"] = game.turn_status
-		gamestate["suggestionCharacter"] = None #self.game.check_suggestion_player # TODO isn't this a function?
+		#gamestate["suggestionCharacter"] = None #self.game.check_suggestion_player # TODO isn't this a function?
+		gamestate["suggestionCharacter"] = self.game.suggestion_response.suspect
+
+		
 		gamestate["availableCharacters"] = self.get_available_characters()
 		
 		return gamestate

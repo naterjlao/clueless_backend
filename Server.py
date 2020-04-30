@@ -59,8 +59,9 @@ class Game(object):
 				payload = {}
 				payload["playerId"] = name
 				payload["suspect"] = self.players[name].suspect
-				payload["isSuggestionValid"] = False #self.check_suggestion_turn_status() # TODO I am guessing this is a bool
-				
+				#payload["isSuggestionValid"] = False #self.check_suggestion_turn_status() # TODO I am guessing this is a bool
+				payload["isSuggestionValid"] = self.game.turn_status #IF turn_status  Awaiting_Suggestion_Response TRUE, ELSE FALSE
+
 				state = {}
 				state["playerId"] = name
 				state["payload"] = payload

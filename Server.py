@@ -99,6 +99,18 @@ class Game(object):
 		
 	def getSuggestionOptions(self):
 		return []
+
+		'''
+		x = self.game.format()
+		for player in x["players"]: 
+			return ({
+
+			"user": player["user"],
+			"card_hand": player["suggestion_options"]
+
+			})
+		'''		
+		
 		'''
 		# copied from check_suggestion_options
 		suggestion_options = list()
@@ -117,18 +129,25 @@ class Game(object):
 	def getAccusationOptions(self):
 		return []
 		'''
-		# just copied from get_accusation_options
-		accusation_options = list()
+		x = self.game.format()
+		for player in x["players"]: 
+			return ({
+
+			"user": player["user"],
+			"card_hand": player["accusation_options"]
+
+			})
+		'''		
 		
+		
+		'''
+		accusation_options = list()		
 		for weapon in Entity.WEAPONS: 
 			self.game.current_player.accusation_options.insert(0,weapon)
-
 		for room in Entity.ROOMS: 
 			self.game.current_player.accusation_options.insert(0,room)
-
 		for suspect in Entity.SUSPECTS: 
 			self.game.current_player.accusation_options.insert(0,suspect)
-		
 		
 		return self.game.current_player.accusation_options
 		'''
@@ -137,15 +156,50 @@ class Game(object):
 		return []
 		#copied from get_player_cardhand
 		#return self.game.current_player.card_seen
+		'''
+		x = self.game.format()
+		for player in x["players"]: 
+			return ({
 
+			"user": player["user"],
+			"card_hand": player["card_seen"]
+
+			})
+		'''
+		
+		
+		
 	def getCardlists(self):
 		return []
 		#copied from get_player_cardhand
 		#return self.game.current_player.card_hand
+		
+		'''
+		x = self.game.format()
+		for player in x["players"]: 
+			return ({
+
+			"user": player["user"],
+			"card_hand": player["card_hand"]
+
+			})
+		'''
+		
 
 	def getMessages(self):
 		return []
 		#return self.game.current_player.messages
+		
+		'''
+		x = self.game.format()
+		for player in x["players"]: 
+			return ({
+
+			"user": player["user"],
+			"card_hand": player["messages"]
+
+			})
+		'''
 		
 	# This does nothing, but keep this here to catch the import call
 	def enteredGame(self,playerId):
@@ -172,7 +226,7 @@ class Game(object):
 
 
 	def disproveAccusation(self,playerId,card,type,cannotDisprove):
-		pass # no such thing
+		pass # UNNECESSARY
 			
     # Adds a player with a given name
     # The <name> is used as identifier for the player.
@@ -180,12 +234,12 @@ class Game(object):
 	def add_player(self, name):
 		self.players[name] = Entity.Player(name)
 
-	def remove_player(self): #NOTE - took out playerId
-		pass # DISABLE BC BROKEN
+	def remove_player(self, playerId): #NOTE - took out playerId
+		pass # DISABLE BC BROKEN / LEAVE OUT UNTIL AFTER MOVEMENT TESTED
 		'''
-		lost_player = self.game.current_player # Nate - I have no idea why we are removing the current player? 
-		self.next_turn()                       # this would mean ANYONE can remove the current player, but ok I guess
-		self.game.turn_list.remove(lost_player)
+		self.game.turn_list.remove(playerId)
+	
+		
 		'''
     # Initiates the start of the game.
     # Cards are given out to each of the players

@@ -15,8 +15,11 @@
 ################################################################################
 
 # Import classes
-from classes import *
+from utils import *
 from globals import *
+from gameboard import *
+from players import *
+from cards import *
 
 # Defines the Game object, the primary interface to the game instance
 class Game:

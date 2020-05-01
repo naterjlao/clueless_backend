@@ -27,6 +27,7 @@ class Player:
 		self.cards = []
 		self.checklist = []
 		self.state = "IN_PLAY" # "WIN", "LOSE"
+		self.logger.log("Added player %s" % playerId)
 	
 	def __str__(self):
 		return "%s : %s" % (str(self.playerId), str(self.suspect))
@@ -139,10 +140,17 @@ class PlayerList:
 	def getPlayerBySuspect(self,suspect):
 		ret = None
 		for player in self.players:
-			if player.getSuspect == suspect:
+			if player.getSuspect() == suspect:
 				ret = player
 				break
 		return ret
+
+	# Removes the player from the playerlist and returns the player object
+	def removePlayer(self,playerId):
+		target = getPlayer(playerId)
+		self.logger.log("Removing player %s" % playerId)
+		self.players.remove(target)
+		return target
 
 	# Assigns the suspect to the player. If the suspect is already assigned
 	# a GameError is thrown.

@@ -22,7 +22,7 @@ class Logger:
 	def log(self,msg):
 		if DEBUG:
 			pass
-			#print(msg)
+			print(msg)
 		else:
 			pass
 			# TODO find the timestamp

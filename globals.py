@@ -23,6 +23,14 @@ LOCATION='location'
 ################################################################################
 # GAME VARIABLES
 ################################################################################
+
+# Game status values
+STATE_INITIAL = "INITIAL"			# Indicates that the game has not started, players are not set at this point
+STATE_STARTED = "STARTED"			# Indicates that the game is in progress, players are able to move on the board
+STATE_SUGGESTION = "SUGGESTION"		# Indicates that the game is in a state of suggestion, certain events must occur in order to return to STARTED
+STATE_ACCUSATION = "ACCUSATION"		# Indicates that the game is in a state of accusation, certain events must occur in order to return to STARTED
+STATE_END = "END"					# Indicates that the game has ended. No more actions may occur
+
 # String list of room names
 # The way that the list is stylized resembles the actual
 # board setup. The number of rooms must be a result of a

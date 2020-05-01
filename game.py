@@ -33,11 +33,8 @@ class Game:
 		self.playerlist = PlayerList(self.logger)
 		self.gameboard = Gameboard(self.logger)
 		self.cardManager = CardManager(self.logger)
-		self.turnStatus = "INITIAL"
-		
-		# Signal gamestate fields
+		self.state = STATE_INITIAL
 		self.currentPlayer = None # NOTE the player Object, not the ID
-		self.state = None # "INITIAL", "STARTED", "SUGGESTION", "ACCUSATION", "END" # might want to change so that they don't complain
 		self.suggestionCharacter = None
 		self.availableCharacters = None
 
@@ -56,8 +53,6 @@ class Game:
 	# AUXILIARY METHODS
 	########################################################################
 		
-	
-	
 	# Updates the turn of the player at the given moment.
 	def updateTurnStatus(self):
 		self.turnStatus = self.gameboard.updateTurnStatus()
@@ -73,9 +68,14 @@ class Game:
 	# This dictionary will be sent to all players at the same signal cycle.
 	########################################################################
 	# Returns a Dictionary. The same dictionary is sent to ALL players
-	def getGamestate(self):
+	def getGamestate(self):	
+		if (self.state == STATE_INITIAL):
+			playerId = "No current player, game has not started"
+		else:
+			playerId = self.currentPlayer.getID()
+
 		ret = {
-				"currentPlayerId"    : self.currentPlayer.getID(),
+				"currentPlayerId"    : playerId,
 				"turnStatus"         : self.state,
 				"availableChracters" : self.availableCharacters
 			}
@@ -111,6 +111,7 @@ class Game:
 		
 	# Returns a list of Dictionaries that are sent to each player
 	def getMoveOptions(self):
+		# Data preprocessing is needed
 		data = []
 		for player in self.playerlist.getPlayers():
 			moveOptions = self.gameboard.getMoveOptions(player)
@@ -119,19 +120,19 @@ class Game:
 
 	# Returns a list of Dictionaries that are sent to each player
 	def getSuggestionOptions(self):
-		pass
+		return [] # TODO
 		
 	# Returns a list of Dictionaries that are sent to each player
 	def getAccusationOptions(self):
-		pass
+		return [] # TODO
 		
 	# Returns a list of Dictionaries that are sent to each player
 	def getChecklists(self):
-		pass
+		return [] # TODO
 		
 	# Returns a list of Dictionaries that are sent to each player
 	def getMessages(self):
-		pass
+		return [] # TODO
 
 	########################################################################
 	# PUBLIC INTERFACE METHODS PROCESSORS
@@ -169,8 +170,16 @@ class Game:
 		self.gameboard.intializePlayers(self.playerlist)
 		
 		# Set the starting player
-		self.currentPlayerId = self.playerlist.getPlayerBySuspect(SUSPECTS[0])
-		self.state = "STARTED"
+		startPlayer = None
+		idx = 0
+		while (startPlayer == None) and idx < len(SUSPECTS):
+			startPlayer = self.playerlist.getPlayerBySuspect(SUSPECTS[idx])
+			idx += 1
+		self.logger.log("setting first player: %s" % startPlayer)
+		self.currentPlayer = startPlayer
+	
+		# Set the game state to STARTED
+		self.state = STATE_STARTED
 		
 	def selectMove(self,playerId,choice):
 		pass
@@ -196,45 +205,7 @@ class Game:
 		pass # NOTE Argument <type> is redundant, card can be derived by the game itself because this is stupidly trivial
 		
 	# Gracefully remove the player from the game
-	def removePlayer(self):
-		pass
+	def removePlayer(self,playerId):
+		target = self.playerlist.removePlayer(playerId)
+		self.gameboard.removePlayer(target)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		

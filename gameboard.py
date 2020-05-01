@@ -98,6 +98,10 @@ class Gameboard:
 				ret += "|"
 				ret += "\n"
 		
+		for idx in range(0,(bufferspace*self.dimension) + self.dimension + 1):
+			ret += "-" # printout ----- border
+		ret += "\n"
+		
 		# Printout the Passageways
 		for pway in self.passageways:
 			ret += str(pway) + " "
@@ -187,6 +191,10 @@ class Gameboard:
 	
 	# Moves the player to the associated room of choice if possible
 	def movePlayer(self,player,choice):
+		pass
+
+	# Removes the player from the gameboard
+	def removePlayer(self,player):
 		pass
 
 	# Returns the Room instance at a specified coordinate
@@ -311,7 +319,7 @@ class PassageWay:
 	def isOccupied(self):
 		return self.player != None
 	
-	# Returns a singleton list of the Player that
+	# Returns a singleton list of the Player that are
 	# in the Hallway (really a misnomer)
 	def getPlayers(self):
 		return [self.player] if self.player != None else []

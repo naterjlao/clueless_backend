@@ -33,7 +33,6 @@ class Game(object):
 		# Return the dictionary reprsentation of the game.
 		gamestate["currentPlayerId"] = game.current_player
 		gamestate["turnStatus"] = game.turn_status
-		#gamestate["suggestionCharacter"] = None #self.game.check_suggestion_player # TODO isn't this a function?
 		gamestate["suggestionCharacter"] = self.game.suggestion_response.suspect
 
 		
@@ -99,6 +98,8 @@ class Game(object):
 		
 	def getSuggestionOptions(self):
 		
+		get_suggestion_options()
+		
 		x = self.game.format()
 		for player in x["players"]: 
 			
@@ -125,6 +126,8 @@ class Game(object):
 		'''
 		
 	def getAccusationOptions(self):
+		
+		get_accusation_options()
 		
 		x = self.game.format()
 		for player in x["players"]: 

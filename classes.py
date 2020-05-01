@@ -17,12 +17,16 @@ from globals import *
 class Logger:
 	# TODO remove init, not needed
 	def __init__(self):
-		print("logger intialized") # DEBUG
+		if not DEBUG:
+			self.file = open(LOG_FILE,'w+')
 	def log(self,msg):
-		print(msg) # TODO delete me!
-		# TODO find the timestamp
-		# TODO append the message
-		# TODO push to log file
+		if not DEBUG:
+			print(msg)
+		else:
+			pass
+			# TODO find the timestamp
+			# TODO append the message
+			# TODO push to log file
 logger = Logger()
 
 # A board is constructed of a 3x3 grid of rooms

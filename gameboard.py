@@ -195,14 +195,11 @@ class Gameboard:
 			roomA = self.getRoom(ROOMS[roomAidx])		# Find the referenced rooms
 			roomB = self.getRoom(ROOMS[roomBidx])
 			passageway = self.getPassageway(roomA,roomB)
-			ret = [passageway.getName()]				# Return the singleton list of one passageway
+			ret = [passageway]							# Return the singleton list of one passageway
 		elif current_loc != None:
 			ret = current_loc.getChoices()
 		else:
-			ret = []
-		# Sanity check
-		if ret == None:
-			raise GameError("could not return a list of options, not even empty list")
+			ret = []									# This only occurs if the game has not started
 		return ret
 			
 	# Returns True iff the movement is valid

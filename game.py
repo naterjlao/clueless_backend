@@ -117,7 +117,10 @@ class Game:
 		data = []
 		for player in self.playerlist.getPlayers():
 			moveOptions = self.gameboard.getMoveOptions(player)
-			data.append({PLAYER_ID:player.playerId,DIRTY:True,PAYLOAD:moveOptions})
+			moveOptStr = []
+			for option in moveOptions:
+				moveOptStr.append(option.getName())
+			data.append({PLAYER_ID:player.playerId,DIRTY:True,PAYLOAD:moveOptStr})
 		return data
 
 	# Returns a list of Dictionaries that are sent to each player

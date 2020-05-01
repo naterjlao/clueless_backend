@@ -147,7 +147,7 @@ class PlayerList:
 
 	# Removes the player from the playerlist and returns the player object
 	def removePlayer(self,playerId):
-		target = getPlayer(playerId)
+		target = self.getPlayer(playerId)
 		self.logger.log("Removing player %s" % playerId)
 		self.players.remove(target)
 		return target

@@ -36,7 +36,6 @@ class Game:
 		self.state = STATE_INITIAL
 		self.currentPlayer = None # NOTE the player Object, not the ID
 		self.suggestionCharacter = None
-		self.availableCharacters = None
 
 	# Debugger printout
 	def __str__(self):
@@ -57,11 +56,6 @@ class Game:
 	def updateTurnStatus(self):
 		self.turnStatus = self.gameboard.updateTurnStatus()
 		
-	# Updates the games availableCharacters instance
-	# Must be called every time a character is allocated to a player
-	def updateAvailableCharacters(self):
-		self.availableCharacters = self.playerlist.getAvailableCharacters()
-		
 	########################################################################
 	# PUBLIC INTERFACE GLOBAL METHOD SENDERS
 	# These methods must return a SINGLE dictionary
@@ -75,9 +69,9 @@ class Game:
 			playerId = self.currentPlayer.getID()
 
 		ret = {
-				"currentPlayerId"    : playerId,
-				"turnStatus"         : self.state,
-				"availableChracters" : self.availableCharacters
+				"currentPlayerId"     : playerId,
+				"turnStatus"          : self.state,
+				"availableCharacters" : self.playerlist.getAvailableCharacters()
 			}
 		return ret
 		
@@ -131,6 +125,10 @@ class Game:
 		return [] # TODO
 		
 	# Returns a list of Dictionaries that are sent to each player
+	def getCardlists(self):
+		return [] # TODO
+		
+	# Returns a list of Dictionaries that are sent to each player
 	def getMessages(self):
 		return [] # TODO
 
@@ -146,7 +144,6 @@ class Game:
 	def selectSuspect(self,playerId,suspect):
 		#try:
 		self.playerlist.selectPlayerSuspect(playerId,suspect)
-		self.updateAvailableCharacters()
 		#except GameException as gexc:
 		#	print(gexc) # TODO -- push message to player's message board
 

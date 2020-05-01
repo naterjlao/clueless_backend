@@ -52,7 +52,7 @@ class Gameboard:
 			for x_delta in delta_range:
 				for y_delta in delta_range:
 					if abs(x_delta) != abs(y_delta): # exclude corners and origin
-						candidateRoom = self.getRoom(x_coordinate + x_delta, y_coordinate + y_delta)
+						candidateRoom = self.getRoomByCoor(x_coordinate + x_delta, y_coordinate + y_delta)
 						candidatePWay = None
 						if candidateRoom != room and candidateRoom != None:
 							candidatePWay = PassageWay(room,candidateRoom,self.logger)
@@ -76,8 +76,8 @@ class Gameboard:
 			# Printout the room name
 			for x in range(0, self.dimension):
 				ret += "|"
-				ret += self.getRoom(x,y).name
-				for idx in range(0,bufferspace - len(self.getRoom(x,y).name)):
+				ret += self.getRoomByCoor(x,y).name
+				for idx in range(0,bufferspace - len(self.getRoomByCoor(x,y).name)):
 					ret += " " # padding
 			ret += "|"
 			ret += "\n"
@@ -86,7 +86,7 @@ class Gameboard:
 			for rowIdx in range(0,len(SUSPECTS)):
 				for x in range(0, self.dimension):
 					rowIdx = 0
-					players = self.getRoom(x,y).getPlayers()
+					players = self.getRoomByCoor(x,y).getPlayers()
 					ret += "|"
 					if rowIdx < len(players):
 						ret += players[rowIdx].suspect
@@ -148,6 +148,7 @@ class Gameboard:
 			for player in players:
 				suspects.append(player.getSuspect())
 			ret[position.getName()] = suspects
+		return ret
 	
 	# Returns a list of Player(s) at the specified location
 	# Argument <position> is a string name
@@ -178,16 +179,23 @@ class Gameboard:
 				break # this might cause issues down the line
 		return ret
 	
-	# Returns list of room string names that the player can go to at the current position
+	# Returns list of Location objects that the player can go to at the current position
 	# If the player does not exist on the board, (not in Hallways, Passageways or Initial)
 	# Then an empty list is returned
+	# Note that the return is always an list of objects
 	def getMoveOptions(self,player):
 		ret = None
 		current_loc = self.getPlayerLoc(player)
 		# Find all possible locations the player can go
 		# There is a special exception to players that are currently in their initial positions
 		if current_loc == self.initial:
-			ret = [] # TODO 
+			# Find the initial passageway that the player is supposed to go to
+			idx = SUSPECTS.index(player.getSuspect())	# Reference the player's index position
+			roomAidx, roomBidx = INITIAL[idx]			# Map the index to the INITIAL tuple
+			roomA = self.getRoom(ROOMS[roomAidx])		# Find the referenced rooms
+			roomB = self.getRoom(ROOMS[roomBidx])
+			passageway = self.getPassageway(roomA,roomB)
+			ret = [passageway.getName()]				# Return the singleton list of one passageway
 		elif current_loc != None:
 			ret = current_loc.getChoices()
 		else:
@@ -210,9 +218,18 @@ class Gameboard:
 	def removePlayer(self,player):
 		pass
 
+	# Returns the room on the board that matches the given name
+	def getRoom(self,name):
+		target = None
+		for room in self.rooms:
+			if room.getName() == name:
+				target = room
+				break
+		return target
+
 	# Returns the Room instance at a specified coordinate
 	# If the coordinates are invalid (ie. out of bounds), then None is returned
-	def getRoom(self,x_coordinate,y_coordinate):
+	def getRoomByCoor(self,x_coordinate,y_coordinate):
 		target = None
 		# validate coordinate
 		if (not (x_coordinate < self.dimension and y_coordinate < self.dimension
@@ -222,7 +239,16 @@ class Gameboard:
 			if (room.X == x_coordinate and room.Y == y_coordinate):
 				target = room
 		return target
-		
+	
+	# Returns the associated passageway between the given room on the board
+	def getPassageway(self,roomA,roomB):
+		target = None
+		for pway in self.passageways:
+			if pway.isPassageWay(roomA,roomB):
+				target = pway
+				break
+		return target
+	
 	# Returns all Room instances on the board
 	def getRooms(self):
 		return self.rooms
@@ -272,7 +298,13 @@ class Room:
 	
 	# Returns all potential movement choices based on this Room's position 
 	def getChoices(self):
-		return [] # TODO
+		ret = []
+		for pway in self.passageway:			# See if the passageway is valid
+			if (not pway.isOccupied):			# Add to the list of options
+				ret.append(pway)
+		if self.secretpassage != None:
+			ret.append(self.secretpassage)		# Add the secret passage if possible
+		return ret
 	
 	def addPlayer(self,player):
 		self.logger.log("adding %s to %s" % (player,self.name))
@@ -309,6 +341,20 @@ class PassageWay:
 		elif self.name != other.name:
 			ret = False
 		return ret
+	
+	def isPassageWay(self,roomA,roomB):
+		ret = False
+		if (self.roomA == roomA) and (self.roomB == roomB):
+			ret = True
+		elif (self.roomB == roomA) and (self.roomA == roomB):
+			ret = True
+		return ret
+	
+	# Returns all potential movement choices based on this Hallways's position
+	# Note that the Player can go to any room, since they can be occupied by any
+	# number of people
+	def getChoices(self):
+		return [self.roomA, self.roomB]
 	
 	# Defines a the name of the passageway.
 	# This is a lazy approach, we sort the names

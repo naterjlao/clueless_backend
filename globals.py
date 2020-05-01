@@ -43,7 +43,7 @@ ROOMS = [	'Study', 'Hall', 'Lounge',
 # String list of default suspects and initial positions
 # Miss Scarlet is set to the first index due to precedence before everyone else
 SUSPECTS = ['Miss Scarlet','Colonel Mustard','Mrs White','Mr Green','Mrs Peacock','Professor Plum']
-INITIAL  = [(1,2),(2,5),(7,8),(6,7),(3,6),(0,3)]
+INITIAL  = [(1,2),(2,5),(7,8),(6,7),(3,6),(0,3)] # These are based on indices on the ROOMS, ordered the same a SUSPECTS
 
 # String list of weapons
 WEAPONS = ['Candlestick','Knife','Lead Pipe','Revolver','Rope','Wrench']

@@ -148,8 +148,9 @@ class PlayerList:
 	# Removes the player from the playerlist and returns the player object
 	def removePlayer(self,playerId):
 		target = self.getPlayer(playerId)
-		self.logger.log("Removing player %s" % playerId)
-		self.players.remove(target)
+		if target != None: # TODO this might need to be verified
+			self.logger.log("Removing player %s" % playerId)
+			self.players.remove(target)
 		return target
 
 	# Assigns the suspect to the player. If the suspect is already assigned

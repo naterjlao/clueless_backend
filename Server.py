@@ -98,8 +98,11 @@ class Game(object):
 		
 	def getSuggestionOptions(self):
 		
-		get_suggestion_options()
+		for playerId in self.players:	
+			current_space = self.get_suspect_current_space(playerId)				
+			get_suggestion_options(current_space)
 		
+				
 		x = self.game.format()
 		for player in x["players"]: 
 			
@@ -228,7 +231,6 @@ class Game(object):
 		'''
 		self.game.turn_list.remove(playerId)
 	
-		
 		'''
     # Initiates the start of the game.
     # Cards are given out to each of the players
@@ -661,7 +663,7 @@ class Game(object):
 			self.game.current_player.accusation_options.insert(0,suspect)
 		
 		
-		return self.game.current_player.accusation_options
+		#return self.game.current_player.accusation_options
 
 	
 	def get_suggestion_options(self, current_space):
@@ -676,7 +678,7 @@ class Game(object):
 		for weapon in Entity.WEAPONS: 
 			self.game.current_player.accusation_options.insert(0,weapon)
 
-		return self.game.current_player.suggestion_options
+		#return self.game.current_player.suggestion_options
 
 
 

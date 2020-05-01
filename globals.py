@@ -14,7 +14,7 @@
 # ADMINISTRATION
 ################################################################################
 LOG_FILE='/opt/clueless/log/backend.log'
-DEBUG=True # Set to false before deployment!
+DEBUG=False 						# Set to false before deployment!
 PLAYER_ID='playerId'
 DIRTY='dirty'
 PAYLOAD='payload'

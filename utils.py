@@ -24,8 +24,7 @@ class Logger:
 			pass
 			print(msg)
 		else:
-			pass
-			# TODO find the timestamp
+			self.file.write("%s\n" % msg)
 			# TODO append the message
 			# TODO push to log file
 

@@ -125,7 +125,7 @@ class Gameboard:
 		for player in playerlist.getPlayers():
 			self.initial.addPlayer(player)
 			
-	
+	''' CANDIDATE FOR DEPRECATION
 	# Returns a list of dictionaries containing the following information
 	# - playerId: string of the playerId at a room
 	# - location: location of the player
@@ -135,6 +135,19 @@ class Gameboard:
 			for player in loc.getPlayers():
 				ret.append({PLAYER_ID:player.getID(),LOCATION:loc.getName()})
 		return ret
+	'''
+	# Returns a dictionary.
+	# Contains keys that are named after every possible location on the board include INITIAL
+	# The value of each key maps to list of SUSPECTS that occupy the location
+	# If no suspect occupies a location, an empty [] is returned
+	def getGameboard(self):
+		ret = {}
+		for position in self.getAllPositions():
+			players = position.getPlayers()
+			suspects = []
+			for player in players:
+				suspects.append(player.getSuspect())
+			ret[position.getName()] = suspects
 	
 	# Returns a list of Player(s) at the specified location
 	# Argument <position> is a string name
@@ -313,6 +326,9 @@ class PassageWay:
 		else:
 			ret = "%s-%s" % (room2,room1)
 		return ret
+	
+	def getName(self):
+		return self.name
 	
 	# Returns True if a Player is occupying a Hallway
 	# Only one Player can occupy a Hallway

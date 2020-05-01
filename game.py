@@ -74,7 +74,12 @@ class Game:
 				"availableCharacters" : self.playerlist.getAvailableCharacters()
 			}
 		return ret
-		
+	
+	# Returns a Dictionary. The same dictionary is sent to ALL players
+	def getGameboard(self):
+		return self.gameboard.getGameboard()
+
+	
 	########################################################################
 	# PUBLIC INTERFACE TARGETED METHOD SENDERS
 	# These methods must return a LIST containing dictonaries.
@@ -84,6 +89,8 @@ class Game:
 	# - payload  : a dictionary containing the essential information that
 	#              target will need.
 	########################################################################
+	
+	''' CANDIDATE FOR DEPRECATION
 	# Returns a list of Dictionaries that are sent to each player
 	def getGameboard(self):
 		# Data preprocessing is needed
@@ -94,6 +101,7 @@ class Game:
 			payload = {LOCATION:elem[LOCATION]}
 			data.append({PLAYER_ID:elem[PLAYER_ID],DIRTY:True,PAYLOAD:payload})
 		return data
+	'''
 	
 	# Returns a list of Dictionaries that are sent to each player
 	def getPlayerstates(self):

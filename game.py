@@ -55,18 +55,25 @@ class Game:
 	# Handles the preparation of a game BEFORE players have entered
 	def initializeGame(self):
 		self.playerlist = PlayerList()
-		self.gameboard = Gameboard(self.playerlist)
+		self.gameboard = Gameboard()
 		self.cardManager = CardManager()
 		self.turnStatus = "INITIAL"
 		
 	# Sets up the CaseFile and assigns the cards out to the players.
 	# Sets the game state to STARTED
+	# Assigns players to their intial positions
 	# It is assumed that:
 	# - players have been assigned to suspects
 	# - no other players will join
 	# - the CardManager is properly initialized
 	def setupGame(self):
 		pass
+		# TODO
+		# Remove all suspects from the available character list
+		# Assign out the cards to the player
+		# Generate the case file with a random selection of cards
+		# Assign the starting positions of all the players
+		# Set the starting player to INITIAL_STARTER
 	
 	# Updates the turn of the player at the given moment.
 	def updateTurnStatus(self):
@@ -85,8 +92,9 @@ class Game:
 	# Returns a Dictionary. The same dictionary is sent to ALL players
 	def getGamestate(self):
 		ret = {
-				"currentPlayerId" : self.currentPlayerId,
-				"turnStatus"      : self.turnStatus
+				"currentPlayerId"    : self.currentPlayerId,
+				"turnStatus"         : self.turnStatus,
+				"availableChracters" : self.availableCharacters
 			}
 		return ret
 		
@@ -109,12 +117,16 @@ class Game:
 		# Data preprocessing is needed
 		data = []
 		for elem in self.playerlist.getPlayerstates():
-			data.append({"playerId":elem.playerId,"dirty":True,"payload":elem})
+			data.append({PLAYER_ID:elem[PLAYER_ID],DIRTY:True,PAYLOAD:elem})
 		return data
 		
 	# Returns a list of Dictionaries that are sent to each player
 	def getMoveOptions(self):
-		pass
+		data = []
+		for player in self.playerlist.getPlayers():
+			moveOptions = self.gameboard.getMoveOptions(player)
+			data.append({PLAYER_ID:player.playerId,DIRTY:True,PAYLOAD:moveOptions})
+		return data
 
 	# Returns a list of Dictionaries that are sent to each player
 	def getSuggestionOptions(self):
@@ -136,18 +148,24 @@ class Game:
 	# PUBLIC INTERFACE METHODS PROCESSORS
 	########################################################################
 	def addPlayer(self,playerId):
+		#try:
 		self.playerlist.addPlayer(playerId)
-	
+		#except GameException as gexc:
+		#	print(gexc) # TODO -- push message to player's message board
+		
 	def selectSuspect(self,playerId,suspect):
-		self.playerlist.getPlayer(playerId).setSuspect(suspect)
+		#try:
+		self.playerlist.selectPlayerSuspect(playerId,suspect)
+		self.updateAvailableCharacters()
+		#except GameException as gexc:
+		#	print(gexc) # TODO -- push message to player's message board
 
 	# Useless signal, does not matter
 	def enteredGame(self,playerId):
 		pass
 	
-	
 	def startGame(self):
-		pass
+		self.setupGame()
 		
 	def selectMove(self,playerId,choice):
 		pass

@@ -10,12 +10,17 @@
 #
 ################################################################################
 
-# String list of default suspects
-SUSPECTS = ['Colonel Mustard','Miss Scarlet', 'Professor Plum',' Mr. Green', ' Mrs. White', 'Mrs. Peacock']
+################################################################################
+# ADMINISTRATION
+################################################################################
+LOG_FILE='/opt/clueless/log/backend.log'
+PLAYER_ID='playerId'
+DIRTY='dirty'
+PAYLOAD='payload'
 
-# String list of weapons
-WEAPONS = ['Candlestick','Knife','Lead Pipe','Revolver','Rope','Wrench']
-
+################################################################################
+# GAME VARIABLES
+################################################################################
 # String list of room names
 # The way that the list is stylized resembles the actual
 # board setup. The number of rooms must be a result of a
@@ -24,12 +29,22 @@ ROOMS = [	'Study', 'Hall', 'Lounge',
 			'Library', 'Billiard Room', 'Dining Room',
 			'Conservatory','Ballroom','Kitchen'
 		]
+
+# String list of default suspects and initial positions
+# Miss Scarlet is set to the first index due to precedence before everyone else
+SUSPECTS = ['Miss Scarlet','Colonel Mustard','Mrs. White','Mr. Green','Mrs. Peacock','Professor Plum']
+INITIAL  = [(1,2),(2,5),(7,8),(6,7),(3,6),(0,3)]
+
+# String list of weapons
+WEAPONS = ['Candlestick','Knife','Lead Pipe','Revolver','Rope','Wrench']
+
 # List of tuples that represent the secret passages the player can take
 # A passage cannot be occupied by a player. ie. the Player shall not
 # have a location state of a "secret passage", rather the Player
 # "warped" to the connecting room. Secret passages are bi-directional.
 # A player may start at elem[0] and end in elem[1] and vice-versa.
-SECRET_PASSAGES = [("Study","Kitchen"),("Lounge","Conservatory")]
+SECRET_PASSAGES = [(ROOMS[0],ROOMS[8]),(ROOMS[2],ROOMS[6])]
+				 #[("Study","Kitchen"),("Lounge","Conservatory")]
 
 # Cards are comprised of all suspects, weapons and rooms.
 CARDS = SUSPECTS + ROOMS + WEAPONS

@@ -24,18 +24,19 @@ class Game:
 	# Generates the game object.
 	# This must be intialized before any requests or signals are in process
 	def __init__(self):
-		# The actual bulk of the game is managed and represented here
-		self.playerlist = None
-		self.gameboard = None
-		self.cardManager = None
+		# Create the logger object per game instance, shared amongst all children objects
+		self.logger = Logger()
+	
+		self.playerlist = PlayerList(self.logger)
+		self.gameboard = Gameboard(self.logger)
+		self.cardManager = CardManager(self.logger)
+		self.turnStatus = "INITIAL"
 		
 		# Signal gamestate fields
-		self.currentPlayerId = None
-		self.turnStatus = None # "INITIAL", "STARTED", "SUGGESTION", "ACCUSATION", "END" # might want to change so that they don't complain
+		self.currentPlayer = None # NOTE the player Object, not the ID
+		self.state = None # "INITIAL", "STARTED", "SUGGESTION", "ACCUSATION", "END" # might want to change so that they don't complain
 		self.suggestionCharacter = None
 		self.availableCharacters = None
-		
-		self.initializeGame()
 
 	# Debugger printout
 	def __str__(self):
@@ -51,29 +52,8 @@ class Game:
 	########################################################################
 	# AUXILIARY METHODS
 	########################################################################
-	
-	# Handles the preparation of a game BEFORE players have entered
-	def initializeGame(self):
-		self.playerlist = PlayerList()
-		self.gameboard = Gameboard()
-		self.cardManager = CardManager()
-		self.turnStatus = "INITIAL"
 		
-	# Sets up the CaseFile and assigns the cards out to the players.
-	# Sets the game state to STARTED
-	# Assigns players to their intial positions
-	# It is assumed that:
-	# - players have been assigned to suspects
-	# - no other players will join
-	# - the CardManager is properly initialized
-	def setupGame(self):
-		pass
-		# TODO
-		# Remove all suspects from the available character list
-		# Assign out the cards to the player
-		# Generate the case file with a random selection of cards
-		# Assign the starting positions of all the players
-		# Set the starting player to INITIAL_STARTER
+	
 	
 	# Updates the turn of the player at the given moment.
 	def updateTurnStatus(self):
@@ -92,17 +72,12 @@ class Game:
 	# Returns a Dictionary. The same dictionary is sent to ALL players
 	def getGamestate(self):
 		ret = {
-				"currentPlayerId"    : self.currentPlayerId,
-				"turnStatus"         : self.turnStatus,
+				"currentPlayerId"    : self.currentPlayer.getID(),
+				"turnStatus"         : self.state,
 				"availableChracters" : self.availableCharacters
 			}
 		return ret
 		
-	# Returns a Dictionary. The same dictionary is sent to ALL players
-	def getGameboard(self):
-		return self.gameboard.getGameboard()
-		
-
 	########################################################################
 	# PUBLIC INTERFACE TARGETED METHOD SENDERS
 	# These methods must return a LIST containing dictonaries.
@@ -112,6 +87,17 @@ class Game:
 	# - payload  : a dictionary containing the essential information that
 	#              target will need.
 	########################################################################
+	# Returns a list of Dictionaries that are sent to each player
+	def getGameboard(self):
+		# Data preprocessing is needed
+		data = []
+		for elem in self.gameboard.getGameboard():
+			# The payload really only needs to contain the location
+			# since each signal is targeted to each individual player
+			payload = {LOCATION:elem[LOCATION]}
+			data.append({PLAYER_ID:elem[PLAYER_ID],DIRTY:True,PAYLOAD:payload})
+		return data
+	
 	# Returns a list of Dictionaries that are sent to each player
 	def getPlayerstates(self):
 		# Data preprocessing is needed
@@ -164,8 +150,24 @@ class Game:
 	def enteredGame(self,playerId):
 		pass
 	
+	# Sets up the CaseFile and assigns the cards out to the players.
+	# Sets the game state to STARTED
+	# Assigns players to their intial positions
+	# It is assumed that:
+	# - players have been assigned to suspects
+	# - no other players will join
+	# - the CardManager is properly initialized
 	def startGame(self):
-		self.setupGame()
+		# TODO
+		# Remove all suspects from the available character list
+		# Assign out the cards to the players
+		# Generate the case file with a random selection of cards
+		# Assign the starting positions of all the players
+		self.gameboard.intializePlayers(self.playerlist)
+		
+		# Set the starting player
+		self.currentPlayerId = self.playerlist.getPlayerBySuspect(SUSPECTS[0])
+		self.state = "STARTED"
 		
 	def selectMove(self,playerId,choice):
 		pass

@@ -1,12 +1,12 @@
 #!/usr/bin/python3
 ################################################################################
-# File:            classes.py
+# File:            util.py
 # Subcomponent:    Clueless/Backend
 # Language:        python3
 # Author:          Nate Lao (nlao1@jh.edu)
 # Date Created:    4/28/2020
 # Description:
-#			Contains the class definitions for the game.
+#			Contains the utility class declarations for Clueless.
 #
 ################################################################################			
 from globals import *
@@ -20,14 +20,14 @@ class Logger:
 		if not DEBUG:
 			self.file = open(LOG_FILE,'w+')
 	def log(self,msg):
-		if not DEBUG:
-			print(msg)
+		if DEBUG:
+			pass
+			#print(msg)
 		else:
 			pass
 			# TODO find the timestamp
 			# TODO append the message
 			# TODO push to log file
-logger = Logger()
 
 # A board is constructed of a 3x3 grid of rooms
 # Every room is connected to room that is directly North, South, East or West of it.
@@ -36,12 +36,13 @@ logger = Logger()
 # corner room relative to the board. Therefore, there are only 4 rooms that have
 # secret passages.
 class Gameboard:
-	def __init__(self):
+	def __init__(self,logger):
+		self.logger = logger
 		# Observe that Rooms are captured, hallways must be accounted in
 		# the player's location field
 		self.rooms = []
 		self.passageways = []
-		self.initial = Room("INITIAL",-1,-1) # Singleton initial player starting space
+		self.initial = Room("INITIAL",-1,-1,self.logger) # Singleton initial player starting space
 		
 		# Validate the given rooms
 		if len(ROOMS) == 0:
@@ -51,15 +52,15 @@ class Gameboard:
 			raise BackendException("invalid number of rooms provided in ROOMS")
 		
 		# Add the rooms to the board
-		logger.log("Generating Rooms")
+		self.logger.log("Generating Rooms")
 		for idx in range(0,len(ROOMS)):
 			x_coordinate = int(idx % self.dimension)
 			y_coordinate = int(idx / self.dimension)
-			self.rooms.append(Room(ROOMS[idx],x_coordinate,y_coordinate))
-		logger.log("Rooms generated: %s" % self.rooms)
+			self.rooms.append(Room(ROOMS[idx],x_coordinate,y_coordinate,self.logger))
+		self.logger.log("Rooms generated: %s" % self.rooms)
 		
 		# Add the passageways to the board
-		logger.log("Generating Passageways")
+		self.logger.log("Generating Passageways")
 		for room in self.rooms:
 			x_coordinate = room.getX()
 			y_coordinate = room.getY()
@@ -70,11 +71,11 @@ class Gameboard:
 						candidateRoom = self.getRoom(x_coordinate + x_delta, y_coordinate + y_delta)
 						candidatePWay = None
 						if candidateRoom != room and candidateRoom != None:
-							candidatePWay = PassageWay(room,candidateRoom)
+							candidatePWay = PassageWay(room,candidateRoom,self.logger)
 						if (candidatePWay != None) and (candidatePWay not in self.passageways):
-							logger.log("Adding passageway: %s" % candidatePWay)
+							self.logger.log("Adding passageway: %s" % candidatePWay)
 							self.passageways.append(candidatePWay)
-		logger.log("Passageways generated: %s" % self.passageways)
+		self.logger.log("Passageways generated: %s" % self.passageways)
 	
 	def __str__(self):
 		ret = ""
@@ -127,7 +128,25 @@ class Gameboard:
 		
 		return ret
 	
-
+	# Returns a list of all Rooms and Passageways
+	def getAllPositions(self):
+		return (self.rooms + self.passageways + [self.initial])
+	
+	# Initializes players to their starting positions
+	def intializePlayers(self,playerlist):
+		for player in playerlist.getPlayers():
+			self.initial.addPlayer(player)
+			
+	
+	# Returns a list of dictionaries containing the following information
+	# - playerId: string of the playerId at a room
+	# - location: location of the player
+	def getGameboard(self):
+		ret = []
+		for loc in self.getAllPositions():
+			for player in loc.getPlayers():
+				ret.append({PLAYER_ID:player.getID(),LOCATION:loc.getName()})
+		return ret
 	
 	# Returns a list of Player(s) at the specified location
 	# Argument <position> is a string name
@@ -152,7 +171,7 @@ class Gameboard:
 	# then None is returned
 	def getPlayerLoc(self,player):
 		ret = None
-		for position in (self.rooms + self.passageways + [self.initial]):
+		for position in self.getAllPositions():
 			if position.hasPlayer(player):
 				ret = position
 				break # this might cause issues down the line
@@ -174,7 +193,7 @@ class Gameboard:
 			ret = []
 		# Sanity check
 		if ret == None:
-			raise GameException("could not return a list of options, not even empty list")
+			raise GameError("could not return a list of options, not even empty list")
 		return ret
 			
 	# Returns True iff the movement is valid
@@ -193,7 +212,7 @@ class Gameboard:
 		# validate coordinate
 		if (not (x_coordinate < self.dimension and y_coordinate < self.dimension
 				and x_coordinate >= 0 and y_coordinate >= 0)):
-			logger.log("invalid coordinates given for Gameboard:getRoom()")
+			self.logger.log("invalid coordinates given for Gameboard:getRoom()")
 		for room in self.rooms:
 			if (room.X == x_coordinate and room.Y == y_coordinate):
 				target = room
@@ -204,7 +223,8 @@ class Gameboard:
 		return self.rooms
 		
 class Room:
-	def __init__(self,name,X,Y):
+	def __init__(self,name,X,Y,logger):
+		self.logger = logger
 		self.name = name
 		self.X = X
 		self.Y = Y
@@ -232,10 +252,10 @@ class Room:
 	# Adds a connecting passageway
 	def addPassageway(self,passageway):
 		if passageway not in self.passageways:
-			logger.log("Adding passageway %s to room %s" % (passageway, self.name))
+			self.logger.log("Adding passageway %s to room %s" % (passageway, self.name))
 			self.passageways.append(passageway)
 		else:
-			logger.log("Could not add passageway %s to room %s" % (passageway, self.name))
+			self.logger.log("Could not add passageway %s to room %s" % (passageway, self.name))
 		
 	# A Secret Passage is basically a Room
 	def addSecretPassage(self,room):
@@ -249,6 +269,10 @@ class Room:
 	def getChoices(self):
 		return [] # TODO
 	
+	def addPlayer(self,player):
+		self.logger.log("adding %s to %s" % (player,self.name))
+		self.players.append(player)
+	
 	# Returns a list of all Players in the Room
 	def getPlayers(self):
 		return self.players
@@ -259,7 +283,8 @@ class Room:
 
 # Connects two adjacent rooms
 class PassageWay:
-	def __init__(self,roomA,roomB):
+	def __init__(self,roomA,roomB,logger):
+		self.logger = logger
 		self.roomA = roomA
 		self.roomB = roomB
 		self.name = self.setName()
@@ -328,7 +353,8 @@ class Player:
 	# A player also holds a hand of cards, a checklist used
 	# for identifying suspects and a message that would 
 	# be displayed to the UI
-	def __init__(self,playerId):
+	def __init__(self,playerId,logger):
+		self.logger = logger
 		self.playerId = playerId
 		self.suspect = None
 		self.message = None
@@ -338,16 +364,21 @@ class Player:
 	
 	def __str__(self):
 		return "%s : %s" % (str(self.playerId), str(self.suspect))
-		
+	
+	# Returns the ID of a player
 	def getID(self):
 		return self.playerId
+	
+	# Returns the suspect name of a player
+	def getSuspect(self):
+		return self.suspect
 		
 	# Adds a card to the Player's hand
 	# The number of cards given to player is dependent on the number of players
 	# in the game. This is because the cards are equally dispersed once the
 	# case file is created. The types of cards the player has does not matter.
 	def addCard(self,card):
-		logger.log("Adding %s card to %s's hand" %(card,self.playerId))
+		self.logger.log("Adding %s card to %s's hand" %(card,self.playerId))
 		self.cards.append(card)
 		
 	# returns a Dictionary that comprises the Player's state to be sent
@@ -372,14 +403,15 @@ class Player:
 	# Note: we assume that the selection is good.
 	# (ie. the player cannot select a suspect that is already choosen
 	def selectSuspect(self,suspect):
-		logger.log("Assigning %s to %s" % (suspect,self.playerId))
+		self.logger.log("Assigning %s to %s" % (suspect,self.playerId))
 		self.suspect = suspect
 
 # Wrapper for holding the list of Players registered in the game
 # In addition, a list of characters that are available are stored
 # in this class.
 class PlayerList:
-	def __init__(self):
+	def __init__(self,logger):
+		self.logger = logger
 		self.players = []
 		self.availableCharacters = []
 		for suspect in SUSPECTS:
@@ -397,10 +429,10 @@ class PlayerList:
 	def addPlayer(self,playerId):
 		ret = False
 		if self.getPlayer(playerId) == None:
-			self.players.append(Player(playerId))
+			self.players.append(Player(playerId,self.logger))
 			ret = True
 		else:
-			logger.log("Cannot add %s, player already exists" % playerId)
+			self.logger.log("Cannot add %s, player already exists" % playerId)
 		return ret
 	
 	def getPlayers(self):
@@ -436,19 +468,29 @@ class PlayerList:
 			ret.append(player.getMoveOption())
 		return ret
 
+	# Returns the Player object that has the suspect name,
+	# If no Player could be found, None is returned
+	def getPlayerBySuspect(self,suspect):
+		ret = None
+		for player in self.players:
+			if player.getSuspect == suspect:
+				ret = player
+				break
+		return ret
+
 	# Assigns the suspect to the player. If the suspect is already assigned
-	# a GameException is thrown.
+	# a GameError is thrown.
 	def selectPlayerSuspect(self,playerId,suspect):
 		player = self.getPlayer(playerId)
 		# verify if the suspect has already been picked
 		if suspect not in self.availableCharacters:
-			raise GameException(playerId,("%s has already been picked" % suspect))
+			raise GameError(playerId,("%s has already been picked" % suspect))
 		elif suspect in SUSPECTS:
 			player.selectSuspect(suspect) 				# Assign the player to the suspect
 			self.availableCharacters.remove(suspect)	# Remove the suspect from the list of available characters
-			logger.log("Available characters: %s" % (self.availableCharacters))
+			self.logger.log("Available characters: %s" % (self.availableCharacters))
 		else:
-			raise GameException(playerId,("%s is not a suspect name" % suspect))
+			raise GameError(playerId,("%s is not a suspect name" % suspect))
 	
 # Defines a Card object
 # A card may either be a:
@@ -456,7 +498,8 @@ class PlayerList:
 # - room
 # - weapon
 class Card:
-	def __init__(self,name):
+	def __init__(self,name,logger):
+		self.logger = logger
 		self.name = name
 	
 	def __str__(self):
@@ -490,7 +533,8 @@ class Card:
 class CardManager:
 	# Generates the cards based on the global CARDS 
 	# All card are unassigned initially
-	def __init__(self):
+	def __init__(self,logger):
+		self.logger = logger
 		self.cards = {}
 		for card in CARDS:
 			self.cards[card] = "UNASSIGNED"
@@ -498,7 +542,7 @@ class CardManager:
 	# From the given PlayerList object and CaseFile
 	# The CardManager randomly chooses three cards from the
 	# deck to place in the case file
-	def assign(self,players : PlayerList):
+	def assign(self,playerlist):
 		pass # TODO
 		
 # Defines the CaseFile object in the game.
@@ -509,7 +553,8 @@ class CardManager:
 # - weapon
 # - room
 class CaseFile:
-	def __init__(self,suspectCard,roomCard,weaponCard):
+	def __init__(self,suspectCard,roomCard,weaponCard,logger):
+		self.logger = logger
 		self.suspectCard = suspectCard
 		self.weaponCard = weaponCard
 		self.roomCard = roomCard
@@ -527,7 +572,7 @@ class CaseFile:
 			ret = False
 		return ret
 
-# Custom exception classes
+# Custom error and exception classes
 class BackException(Exception):
 	def __init__(self,msg):
 		self.msg = msg
@@ -535,7 +580,7 @@ class BackException(Exception):
 		return self.msg
 
 
-class GameException(Exception):
+class GameError(Exception):
 	def __init__(self,playerId, msg):
 		self.playerId = playerId
 		self.msg = msg

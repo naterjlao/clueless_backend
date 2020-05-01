@@ -23,9 +23,10 @@ g.startGame()
 
 
 
-
 print(g)
+print("getPlayerstates")
 print(g.getPlayerstates())
 print(g.getMoveOptions())
+print(g.getGameboard())
 
 

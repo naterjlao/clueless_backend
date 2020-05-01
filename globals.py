@@ -14,10 +14,11 @@
 # ADMINISTRATION
 ################################################################################
 LOG_FILE='/opt/clueless/log/backend.log'
-DEBUG=False # Set to false before deployment!
+DEBUG=True # Set to false before deployment!
 PLAYER_ID='playerId'
 DIRTY='dirty'
 PAYLOAD='payload'
+LOCATION='location'
 
 ################################################################################
 # GAME VARIABLES

@@ -98,18 +98,16 @@ class Game(object):
 		return moveOptions
 		
 	def getSuggestionOptions(self):
-		return []
-
-		'''
+		
 		x = self.game.format()
 		for player in x["players"]: 
+			
 			return ({
 
 			"user": player["user"],
 			"card_hand": player["suggestion_options"]
 
 			})
-		'''		
 		
 		'''
 		# copied from check_suggestion_options
@@ -127,18 +125,16 @@ class Game(object):
 		'''
 		
 	def getAccusationOptions(self):
-		return []
-		'''
+		
 		x = self.game.format()
 		for player in x["players"]: 
+			
 			return ({
 
 			"user": player["user"],
 			"card_hand": player["accusation_options"]
 
 			})
-		'''		
-		
 		
 		'''
 		accusation_options = list()		
@@ -153,53 +149,43 @@ class Game(object):
 		'''
 		
 	def getChecklists(self):
-		return []
-		#copied from get_player_cardhand
-		#return self.game.current_player.card_seen
-		'''
+		
 		x = self.game.format()
 		for player in x["players"]: 
+			
 			return ({
 
 			"user": player["user"],
 			"card_hand": player["card_seen"]
 
 			})
-		'''
-		
 		
 		
 	def getCardlists(self):
-		return []
-		#copied from get_player_cardhand
-		#return self.game.current_player.card_hand
-		
-		'''
+	
 		x = self.game.format()
 		for player in x["players"]: 
+			
 			return ({
 
 			"user": player["user"],
 			"card_hand": player["card_hand"]
 
 			})
-		'''
 		
 
 	def getMessages(self):
-		return []
-		#return self.game.current_player.messages
-		
-		'''
+
 		x = self.game.format()
 		for player in x["players"]: 
+			
 			return ({
 
 			"user": player["user"],
 			"card_hand": player["messages"]
 
 			})
-		'''
+		
 		
 	# This does nothing, but keep this here to catch the import call
 	def enteredGame(self,playerId):

@@ -58,8 +58,8 @@ class Game(object):
 				payload = {}
 				payload["playerId"] = name
 				payload["suspect"] = self.players[name].suspect
-				#payload["isSuggestionValid"] = False #self.check_suggestion_turn_status() # TODO I am guessing this is a bool
-				payload["isSuggestionValid"] = self.game.turn_status #IF turn_status  Awaiting_Suggestion_Response TRUE, ELSE FALSE
+				payload["isSuggestionValid"] = False #self.check_suggestion_turn_status_boolean() # TODO I am guessing this is a bool
+				#payload["isSuggestionValid"] = self.game.turn_status #IF turn_status  Awaiting_Suggestion_Response TRUE, ELSE FALSE
 
 				state = {}
 				state["playerId"] = name
@@ -644,7 +644,10 @@ class Game(object):
 		if player != self.game.suggestion_response.player:
 			raise ErrorServer.InvalidSuggestion
 
-
+	def check_suggestion_turn_status_boolean(self):
+		if self.game.turn_status = Entity.AWAITING_SUGGESTION:
+			return True
+			
 	def check_suggestion_turn_status(self):
 		if self.game.turn_status != Entity.AWAITING_SUGGESTION:
 			raise ErrorServer.InvalidSuggestion
@@ -697,6 +700,7 @@ class Game(object):
 		
 		
 			return self.game.current_player.accusation_options
+
 
 	
 	def get_suggestion_options(self, current_space):

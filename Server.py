@@ -113,21 +113,7 @@ class Game(object):
 
 			})
 		
-		'''
-		# copied from check_suggestion_options
-		suggestion_options = list()
-		room = self.game.game_board[current_space].name
-		self.game.current_player.suggestion_options.insert(0,room)
 
-		for suspect in Entity.SUSPECTS: 
-			self.game.current_player.accusation_options.insert(0,suspect)
-	
-		for weapon in Entity.WEAPONS: 
-			self.game.current_player.accusation_options.insert(0,weapon)
-
-		return self.game.current_player.suggestion_options
-		'''
-		
 	def getAccusationOptions(self):
 		
 		get_accusation_options()
@@ -142,17 +128,6 @@ class Game(object):
 
 			})
 		
-		'''
-		accusation_options = list()		
-		for weapon in Entity.WEAPONS: 
-			self.game.current_player.accusation_options.insert(0,weapon)
-		for room in Entity.ROOMS: 
-			self.game.current_player.accusation_options.insert(0,room)
-		for suspect in Entity.SUSPECTS: 
-			self.game.current_player.accusation_options.insert(0,suspect)
-		
-		return self.game.current_player.accusation_options
-		'''
 		
 	def getChecklists(self):
 		

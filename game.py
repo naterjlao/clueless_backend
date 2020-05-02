@@ -71,7 +71,8 @@ class Game:
 		ret = {
 				"currentPlayerId"     : playerId,
 				"turnStatus"          : self.state,
-				"availableCharacters" : self.playerlist.getAvailableCharacters()
+				"availableCharacters" : self.playerlist.getAvailableCharacters(),
+				"game_has_begun"      : (self.state != STATE_INITIAL)
 			}
 		return ret
 	
@@ -171,7 +172,7 @@ class Game:
 	# - the CardManager is properly initialized
 	def startGame(self):
 		# TODO
-		# Remove all suspects from the available character list
+		# Remove all suspects from the available characters list
 		# Assign out the cards to the players
 		# Generate the case file with a random selection of cards
 		# Assign the starting positions of all the players
@@ -195,7 +196,7 @@ class Game:
 	def selectCard(self,playerId,choice):
 		pass
 	
-	def passTurn(self,playerId,choice):
+	def passTurn(self,playerId):
 		pass
 		
 	def startSuggestion(self,playerId):

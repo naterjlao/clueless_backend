@@ -191,7 +191,8 @@ class Game:
 		self.state = STATE_STARTED
 		
 	def selectMove(self,playerId,choice):
-		pass
+		player = self.playerlist.getPlayer(playerId)
+		self.gameboard.movePlayer(player,choice)
 		
 	def selectCard(self,playerId,choice):
 		pass

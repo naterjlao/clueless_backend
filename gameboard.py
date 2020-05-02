@@ -201,19 +201,31 @@ class Gameboard:
 		else:
 			ret = []									# This only occurs if the game has not started
 		return ret
-			
+	
 	# Returns True iff the movement is valid
 	# This is based on the state of succeeding location and the current player's state
 	def validMove(self,player,choice):
 		pass
 	
 	# Moves the player to the associated room of choice if possible
-	def movePlayer(self,player,choice):
-		pass
+	def movePlayer(self,player,choiceName):
+		from_loc = self.getPlayerLoc(player)
+		to_loc = self.getLoc(choiceName)
+		from_loc.removePlayer(player)
+		to_loc.addPlayer(player)
 
 	# Removes the player from the gameboard
 	def removePlayer(self,player):
 		pass
+
+	# Returns Room or Passageway based on name
+	def getLoc(self,name):
+		target = None
+		for loc in self.getAllPositions():
+			if loc.getName() == name:
+				target = loc
+				break
+		return target
 
 	# Returns the room on the board that matches the given name
 	def getRoom(self,name):
@@ -314,6 +326,9 @@ class Room:
 	# Returns true if the player is within the Room
 	def hasPlayer(self,player):
 		return player in self.players
+		
+	def removePlayer(self,player):
+		self.players.remove(player) # TODO GameError verification
 
 # Connects two adjacent rooms
 class PassageWay:
@@ -378,6 +393,9 @@ class PassageWay:
 	def isOccupied(self):
 		return self.player != None
 	
+	def addPlayer(self,player):
+		self.player = player # TODO GameError verification
+	
 	# Returns a singleton list of the Player that are
 	# in the Hallway (really a misnomer)
 	def getPlayers(self):
@@ -386,6 +404,9 @@ class PassageWay:
 	# Returns true if the player is within the Hallway
 	def hasPlayer(self,player):
 		return player == self.player
+	
+	def removePlayer(self,player):
+		self.player = None	# TODO GameError verification
 	
 	# Removes the Player from the Hallway.
 	# Returns the Player that was removed

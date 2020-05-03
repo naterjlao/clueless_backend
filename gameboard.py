@@ -202,17 +202,21 @@ class Gameboard:
 			ret = []									# This only occurs if the game has not started
 		return ret
 	
-	# Returns True iff the movement is valid
+	# Returns True iff the movement is valid from one location to another
 	# This is based on the state of succeeding location and the current player's state
-	def validMove(self,player,choice):
-		pass
+	def validMove(self,start,dest):
+		return dest in start.getChoices()
 	
 	# Moves the player to the associated room of choice if possible
 	def movePlayer(self,player,choiceName):
-		from_loc = self.getPlayerLoc(player)
-		to_loc = self.getLoc(choiceName)
-		from_loc.removePlayer(player)
-		to_loc.addPlayer(player)
+		start = self.getPlayerLoc(player)
+		dest = self.getLoc(choiceName)
+		if self.validMove(start,dest):
+			self.logger.log("Moving %s from %s to %s" % (player.getName(),start.getName(),dest.getName()))
+			start.removePlayer(player)
+			dest.addPlayer(player)
+		else:
+			GameException(player,"Invalid move")
 
 	# Removes the player from the gameboard
 	def removePlayer(self,player):
@@ -305,7 +309,7 @@ class Room:
 	def isOccupied(self):
 		return False
 	
-	# Returns all potential movement choices based on this Room's position 
+	# Returns only valid choices that the player can go to from this room
 	def getChoices(self):
 		self.logger.log("getting choices for %s" % self.getName())
 		ret = []
@@ -329,7 +333,7 @@ class Room:
 		return player in self.players
 		
 	def removePlayer(self,player):
-		self.players.remove(player) # TODO GameError verification
+		self.players.remove(player) # TODO GameException verification
 
 # Connects two adjacent rooms
 class PassageWay:
@@ -363,7 +367,7 @@ class PassageWay:
 			ret = True
 		return ret
 	
-	# Returns all potential movement choices based on this Hallways's position
+	# Returns all valid movement choices based on this Hallways's position
 	# Note that the Player can go to any room, since they can be occupied by any
 	# number of people
 	def getChoices(self):
@@ -396,7 +400,7 @@ class PassageWay:
 		return self.player != None
 	
 	def addPlayer(self,player):
-		self.player = player # TODO GameError verification
+		self.player = player # TODO GameException verification
 	
 	# Returns a singleton list of the Player that are
 	# in the Hallway (really a misnomer)
@@ -413,5 +417,5 @@ class PassageWay:
 	def removePlayer(self,player):
 		player = self.player
 		self.player = None
-		return player # TODO GameError validation
+		return player # TODO GameException validation
 	

@@ -29,16 +29,27 @@ class Logger:
 			# TODO push to log file
 
 # Custom error and exception classes
+
+# These exceptions are logically invalid and shouldn't be possible
+# for triggering. These should only be used to sanity check the logic
+# of the game itself, rather than player actions
 class BackException(Exception):
 	def __init__(self,msg):
 		self.msg = msg
 	def __str__(self):
 		return self.msg
 
-
-class GameError(Exception):
-	def __init__(self,playerId, msg):
-		self.playerId = playerId
+# These exceptions are triggered by errors caused by the player.
+# These are caught within the signal handlers for each player actions.
+# These should only be raised by the player is trying to perform
+# an action that is against the game rules. When this is caught,
+# the player's message attributes are reset to default.
+# Note that two arguments must be provided:
+# - The player object 
+# - The error message to be displayed to the player
+class GameException(Exception):
+	def __init__(self,player, msg):
+		self.player = player
 		self.msg = msg
 	def __str__(self):
-		return "%s: %s" % (self.playerId,self.msg)
+		return "%s: %s" % (self.player,self.msg)

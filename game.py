@@ -55,7 +55,10 @@ class Game:
 	# Updates the turn of the player at the given moment.
 	def updateTurnStatus(self):
 		self.turnStatus = self.gameboard.updateTurnStatus()
-		
+	
+	# Game
+	
+	
 	########################################################################
 	# PUBLIC INTERFACE GLOBAL METHOD SENDERS
 	# These methods must return a SINGLE dictionary
@@ -84,6 +87,10 @@ class Game:
 	def getGameboard(self):
 		return self.gameboard.getGameboard()
 
+	# When a game exception is thrown, do not crash, instead alert the current
+	# user that the choice is invalid
+	def handleGameException(self,gexc):
+		pass # so far, do nothing.
 	
 	########################################################################
 	# PUBLIC INTERFACE TARGETED METHOD SENDERS
@@ -94,19 +101,6 @@ class Game:
 	# - payload  : a dictionary containing the essential information that
 	#              target will need.
 	########################################################################
-	
-	''' CANDIDATE FOR DEPRECATION
-	# Returns a list of Dictionaries that are sent to each player
-	def getGameboard(self):
-		# Data preprocessing is needed
-		data = []
-		for elem in self.gameboard.getGameboard():
-			# The payload really only needs to contain the location
-			# since each signal is targeted to each individual player
-			payload = {LOCATION:elem[LOCATION]}
-			data.append({PLAYER_ID:elem[PLAYER_ID],DIRTY:True,PAYLOAD:payload})
-		return data
-	'''
 	
 	# Returns a list of Dictionaries that are sent to each player
 	def getPlayerstates(self):
@@ -146,24 +140,29 @@ class Game:
 		
 	# Returns a list of Dictionaries that are sent to each player
 	def getMessages(self):
-		return [] # TODO
+		data = []
+		for player in self.playerlist.getPlayers():
+			message,color = player.getMessage()
+			data.append({PLAYER_ID:player.getID(),DIRTY:True,PAYLOAD:{"message":message,"color":color}})
+		return data
 
 	########################################################################
 	# PUBLIC INTERFACE METHODS PROCESSORS
 	########################################################################
 	def addPlayer(self,playerId):
-		#try:
-		self.playerlist.addPlayer(playerId)
-		#except GameException as gexc:
-		#	print(gexc) # TODO -- push message to player's message board
+		try:
+			self.playerlist.addPlayer(playerId)
+		except GameException as gexc:
+			self.handleGameException(gexc)
 		
 	def selectSuspect(self,playerId,suspect):
-		#try:
-		self.playerlist.selectPlayerSuspect(playerId,suspect)
-		#except GameException as gexc:
-		#	print(gexc) # TODO -- push message to player's message board
+		try:
+			self.playerlist.selectPlayerSuspect(playerId,suspect)
+		except GameException as gexc:
+			self.handleGameException(gexc)
 
 	# Useless signal, does not matter
+	# TODO actually, this might be a lie, we could use this as the trigger for addPlayer
 	def enteredGame(self,playerId):
 		pass
 	
@@ -184,23 +183,20 @@ class Game:
 		
 		# Set the starting player
 		self.playerlist.startGame()
-		
-		''' CANDIDATE FOR DEPRECATION
-		startPlayer = None
-		idx = 0
-		while (startPlayer == None) and idx < len(SUSPECTS):
-			startPlayer = self.playerlist.getPlayerBySuspect(SUSPECTS[idx])
-			idx += 1
-		self.logger.log("setting first player: %s" % startPlayer)
-		self.currentPlayer = startPlayer
-		'''
 	
 		# Set the game state to STARTED
 		self.state = STATE_STARTED
 		
 	def selectMove(self,playerId,choice):
-		player = self.playerlist.getPlayer(playerId)
-		self.gameboard.movePlayer(player,choice)
+		try:
+			player = self.playerlist.getPlayer(playerId)
+			# Must validate that it is the current player's turn
+			if self.playerlist.hasTurn(player):
+				self.gameboard.movePlayer(player,choice)
+			else:
+				raise GameException(player,"Cannot move, it is not your turn")
+		except GameException as gexc:
+			self.handleGameException(gexc)
 		
 	def selectCard(self,playerId,choice):
 		pass

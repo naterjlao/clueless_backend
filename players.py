@@ -23,7 +23,8 @@ class Player:
 		self.logger = logger
 		self.playerId = playerId
 		self.suspect = None
-		self.message = None
+		self.message = ""
+		self.messageColor = "blue" # Setting to default for now
 		self.cards = []
 		self.checklist = []
 		self.state = "IN_PLAY" # "WIN", "LOSE"
@@ -39,6 +40,15 @@ class Player:
 	# Returns the suspect name of a player
 	def getSuspect(self):
 		return self.suspect
+		
+	# Reverts message attributes to initial settings
+	def resetMessage(self):
+		self.message = ""
+		self.message = "blue"
+		
+	# Returns a message string and message color tuple
+	def getMessage(self):
+		return self.message,self.messageColor
 		
 	# Adds a card to the Player's hand
 	# The number of cards given to player is dependent on the number of players
@@ -92,6 +102,10 @@ class PlayerList:
 			ret += "\n"
 		return ret
 	
+	# Returns true only if the current player is the given player
+	def hasTurn(self,player):
+		return player == self.currentPlayer
+	
 	# Returns the player object representing the current player who has the turn in the game
 	def getCurrentPlayer(self):
 		return self.currentPlayer
@@ -144,16 +158,18 @@ class PlayerList:
 			self.currentPlayer = startPlayer
 	
 	# Adds a Player to the PlayerList with playerId
-	# If the player already exists, return False else True
+	# If a new player was added, the new Player object is returned
+	# If the player already existed, None is returned
 	def addPlayer(self,playerId):
-		ret = False
+		newPlayer = None
 		if self.getPlayer(playerId) == None:
-			self.players.append(Player(playerId,self.logger))
-			ret = True
+			newPlayer = Player(playerId,self.logger)
+			self.players.append(newPlayer)
 		else:
 			self.logger.log("Cannot add %s, player already exists" % playerId)
-		return ret
+		return newPlayer
 	
+	# Returns a list of all players in the playerlist
 	def getPlayers(self):
 		return self.players
 	

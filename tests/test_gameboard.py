@@ -6,8 +6,8 @@ sys.path.append('..')
 from game import Game
 
 g = Game()
-def cycle():
-	print("---------------------------> CYCLE <---------------------------")
+def cycle(label=""):
+	print("---------------------------> CYCLE %s <---------------------------" % str(label))
 	print("------gamestate------")
 	print(g.getGamestate())
 	print("------gameboard------")
@@ -26,9 +26,9 @@ def cycle():
 	print(g.getCardlists())
 	print("------messages------")
 	print(g.getMessages())
-	print("-------------------------> END CYCLE <-------------------------")
+	print("-------------------------> END CYCLE %s <-------------------------" % str(label))
 
-cycle()
+cycle("initial")
 g.addPlayer("Bob")
 g.addPlayer("Nancy")
 g.addPlayer("Rose")
@@ -41,13 +41,11 @@ g.selectSuspect("Carl","Mr Green")
 
 
 
-cycle()
+cycle("post setup")
 g.startGame()
-cycle()
+cycle("started")
 g.selectMove("Nancy","Hall-Lounge")
 g.selectMove("Nancy","Hall")
-cycle()
-g.passTurn("Nancy")
 cycle()
 print(g)
 print(g.cardmanager)

@@ -87,7 +87,13 @@ class Game:
 	def handleGameException(self,gexc):
 		if DEBUG:
 			print(gexc.msg)
-		# TODO update the message on the player that raised the exception
+		# Update the message attribute to all players, or the player that
+		# sent the message
+		if gexc.player == "all":
+			for player in self.playerlist.getPlayers():
+				player.updateMessage(gexc.msg)
+		else:
+			gexc.player.updateMessage(gexc.msg)
 	
 	
 	########################################################################
@@ -155,12 +161,14 @@ class Game:
 	def addPlayer(self,playerId):
 		try:
 			self.playerlist.addPlayer(playerId)
+			self.playerlist.resetMessages()
 		except GameException as gexc:
 			self.handleGameException(gexc)
 		
 	def selectSuspect(self,playerId,suspect):
 		try:
 			self.playerlist.selectPlayerSuspect(playerId,suspect)
+			self.playerlist.resetMessages()
 		except GameException as gexc:
 			self.handleGameException(gexc)
 
@@ -177,23 +185,32 @@ class Game:
 	# - no other players will join
 	# - the CardManager is properly initialized
 	def startGame(self):
-		# Remove all suspects from the available characters list
-		self.playerlist.lockAvailableCharacters()
+		try:
+			# Validate if all players are ready to play
+			self.playerlist.validatePlayers()
 		
-		# Load up the case file
-		self.cardmanager.loadCaseFile()
+			# Remove all suspects from the available characters list
+			self.playerlist.lockAvailableCharacters()
+			
+			# Load up the case file
+			self.cardmanager.loadCaseFile()
 
-		# Assign out the cards to the players
-		self.cardmanager.assign(self.playerlist)
+			# Assign out the cards to the players
+			self.cardmanager.assign(self.playerlist)
 
-		# Assign the starting positions of all the players
-		self.gameboard.intializePlayers(self.playerlist)
+			# Assign the starting positions of all the players
+			self.gameboard.intializePlayers(self.playerlist)
+			
+			# Set the starting player
+			self.playerlist.startGame()
 		
-		# Set the starting player
-		self.playerlist.startGame()
-	
-		# Set the game state to STARTED
-		self.state = STATE_STARTED
+			# Set the game state to STARTED
+			self.state = STATE_STARTED
+			
+			self.playerlist.resetMessages()
+		except GameException as gexc:
+			self.handleGameException(gexc)
+		
 		
 	def selectMove(self,playerId,choice):
 		try:
@@ -203,6 +220,8 @@ class Game:
 				self.gameboard.movePlayer(player,choice)
 			else:
 				raise GameException(player,"Cannot move, it is not your turn")
+				
+			self.playerlist.resetMessages()
 		except GameException as gexc:
 			self.handleGameException(gexc)
 		

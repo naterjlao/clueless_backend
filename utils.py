@@ -45,7 +45,7 @@ class BackException(Exception):
 # an action that is against the game rules. When this is caught,
 # the player's message attributes are reset to default.
 # Note that two arguments must be provided:
-# - The player object 
+# - The player object or "all"
 # - The error message to be displayed to the player
 class GameException(Exception):
 	def __init__(self,player, msg):

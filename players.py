@@ -25,13 +25,18 @@ class Player:
 		self.suspect = None
 		self.message = ""
 		self.messageColor = "blue" # Setting to default for now
-		self.cards = []
 		self.checklist = []
-		self.state = PLAYER_IN_PLAY # It is assumed that when a player is made, he's automatically thrown to in play
+		self.state = PLAYER_INITIAL # It is assumed that when a player is made, he's automatically thrown to in play
 		self.logger.log("Added player %s" % playerId)
 	
 	def __str__(self):
 		return "%s (%s)" % (str(self.suspect), str(self.playerId))
+	
+	# Does nothing but raises a GameException if the player 
+	def validatePlayer(self):
+		if self.state != PLAYER_INITIAL:
+			raise GameException(self,"player %s is not in initial state" % self.playerId)
+		self.getSuspect() # this already verifies if a suspect has be picked
 	
 	# Returns the ID of a player
 	def getID(self):
@@ -39,12 +44,19 @@ class Player:
 	
 	# Returns the suspect name of a player
 	def getSuspect(self):
+		if self.suspect == None:
+			raise GameException("all","player %s does not have a suspect character" % player.playerId)
 		return self.suspect
-		
+	
+	# Updates the player's personal message for UI
+	def updateMessage(self,message,color="blue"):
+		self.message = message
+		self.color = color
+	
 	# Reverts message attributes to initial settings
 	def resetMessage(self):
 		self.message = ""
-		self.message = "blue"
+		self.messageColor = "blue"
 		
 	# Returns a message string and message color tuple
 	def getMessage(self):
@@ -102,6 +114,16 @@ class PlayerList:
 			ret += "\n"
 		return ret
 	
+	# Should be called if a valid move has been performed
+	def resetMessages(self):
+		for player in self.players:
+			player.resetMessage()
+	
+	# This does nothing but raises a GameException if a player is not ready to play
+	def validatePlayers(self):
+		for player in self.players:
+			player.validatePlayer()
+	
 	# Returns true only if the current player is the given player
 	def hasTurn(self,player):
 		return player == self.currentPlayer
@@ -131,7 +153,7 @@ class PlayerList:
 			# At this point, we've wrapped around around the 
 			# SUSPECTS list, but we couldn't find the next player
 			if idx == foundIdx:	
-				raise GameError("could not find the next player based on SUSPECT list")
+				raise BackException("could not find the next player based on SUSPECT list")
 			else:
 				# Determine if the suspect is being used by a player
 				candidate = self.getPlayerBySuspect(SUSPECTS[idx])
@@ -144,9 +166,9 @@ class PlayerList:
 	# Sets up the starting player for the game
 	def startGame(self):
 		if len(self.players) < MIN_PLAYERS:
-			raise GameError("need at least %d players to play the game, only found %d" % (MIN_PLAYERS,len(self.players)))
+			raise GameException("all","need at least %d players to play the game, only found %d" % (MIN_PLAYERS,len(self.players)))
 		elif len(self.players) > MAX_PLAYERS:
-			raise GameError("need at most %d players to play the game, only found %d" % (MAX_PLAYERS,len(self.players)))
+			raise GameException("all","need at most %d players to play the game, only found %d" % (MAX_PLAYERS,len(self.players)))
 		else:
 			# Find the starting player based on the order of suspects
 			startPlayer = None
@@ -242,10 +264,10 @@ class PlayerList:
 		player = self.getPlayer(playerId)
 		# verify if the suspect has already been picked
 		if suspect not in self.availableCharacters:
-			raise GameError(playerId,("%s has already been picked" % suspect))
+			raise GameException(playerId,("%s has already been picked" % suspect))
 		elif suspect in SUSPECTS:
 			player.selectSuspect(suspect) 				# Assign the player to the suspect
 			self.availableCharacters.remove(suspect)	# Remove the suspect from the list of available characters
 			self.logger.log("Available characters: %s" % (self.availableCharacters))
 		else:
-			raise GameError(playerId,("%s is not a suspect name" % suspect))
+			raise GameException(playerId,("%s is not a suspect name" % suspect))

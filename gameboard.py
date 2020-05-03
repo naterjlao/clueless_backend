@@ -307,9 +307,10 @@ class Room:
 	
 	# Returns all potential movement choices based on this Room's position 
 	def getChoices(self):
+		self.logger.log("getting choices for %s" % self.getName())
 		ret = []
 		for pway in self.passageways:			# See if the passageway is valid
-			if (not pway.isOccupied):			# Add to the list of options
+			if (not pway.isOccupied()):			# Add to the list of options
 				ret.append(pway)
 		if self.secretpassage != None:
 			ret.append(self.secretpassage)		# Add the secret passage if possible
@@ -366,6 +367,7 @@ class PassageWay:
 	# Note that the Player can go to any room, since they can be occupied by any
 	# number of people
 	def getChoices(self):
+		self.logger.log("getting choices for %s" % self.getName())
 		return [self.roomA, self.roomB]
 	
 	# Defines a the name of the passageway.

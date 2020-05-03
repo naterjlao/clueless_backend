@@ -41,7 +41,8 @@ class Gameboard:
 			x_coordinate = int(idx % self.dimension)
 			y_coordinate = int(idx / self.dimension)
 			self.rooms.append(Room(ROOMS[idx],x_coordinate,y_coordinate,self.logger))
-		self.logger.log("Rooms generated: %s" % self.rooms)
+		for room in self.rooms:
+			self.logger.log("Room generated: %s" % room)
 		
 		# Add the passageways to the board
 		self.logger.log("Generating Passageways")
@@ -59,7 +60,8 @@ class Gameboard:
 						if (candidatePWay != None) and (candidatePWay not in self.passageways):
 							self.logger.log("Adding passageway: %s" % candidatePWay)
 							self.passageways.append(candidatePWay)
-		self.logger.log("Passageways generated: %s" % self.passageways)
+		for pway in self.passageways:
+			self.logger.log("Passageway generated: %s" % pway)
 	
 	def __str__(self):
 		ret = ""
@@ -124,18 +126,7 @@ class Gameboard:
 	def intializePlayers(self,playerlist):
 		for player in playerlist.getPlayers():
 			self.initial.addPlayer(player)
-			
-	''' CANDIDATE FOR DEPRECATION
-	# Returns a list of dictionaries containing the following information
-	# - playerId: string of the playerId at a room
-	# - location: location of the player
-	def getGameboard(self):
-		ret = []
-		for loc in self.getAllPositions():
-			for player in loc.getPlayers():
-				ret.append({PLAYER_ID:player.getID(),LOCATION:loc.getName()})
-		return ret
-	'''
+
 	# Returns a dictionary.
 	# Contains keys that are named after every possible location on the board include INITIAL
 	# The value of each key maps to list of SUSPECTS that occupy the location
@@ -208,13 +199,32 @@ class Gameboard:
 		return dest in start.getChoices()
 	
 	# Moves the player to the associated room of choice if possible
-	def movePlayer(self,player,choiceName):
+	# The force parameter shall only be used if the player needs to
+	# be moved because of a suggestion. If a suggestion is made to 
+	# the player, the player must move to the room of the suggestion
+	def movePlayer(self,player,choiceName,forced=False):
 		start = self.getPlayerLoc(player)
 		dest = self.getLoc(choiceName)
-		if self.validMove(start,dest):
+		
+		if forced:
+			# Move the player to the next location without validation
 			self.logger.log("Moving %s from %s to %s" % (player.getName(),start.getName(),dest.getName()))
 			start.removePlayer(player)
 			dest.addPlayer(player)
+			
+			# This player has just been suggested, the player must be in a state of defend
+			player.state = PLAYER_DEFEND
+		
+		elif self.validMove(start,dest):
+		
+			# Move the player to the next location
+			self.logger.log("Moving %s from %s to %s" % (player.getName(),start.getName(),dest.getName()))
+			start.removePlayer(player)
+			dest.addPlayer(player)
+			
+			# If the player had just moved to a room, he must make a suggestion
+			if (dest.isHallway()):
+				player.state = PLAYER_SUGGEST
 		else:
 			GameException(player,"Invalid move")
 
@@ -257,7 +267,7 @@ class Gameboard:
 	def getPassageway(self,roomA,roomB):
 		target = None
 		for pway in self.passageways:
-			if pway.isPassageWay(roomA,roomB):
+			if pway.isPassageWayFor(roomA,roomB):
 				target = pway
 				break
 		return target
@@ -279,6 +289,12 @@ class Room:
 							
 	def __str__(self):
 		return self.name
+
+	def isRoom(self):
+		return True
+		
+	def isPassageWay(self):
+		return False
 
 	# Room coordinates
 	def getX(self):
@@ -359,7 +375,13 @@ class PassageWay:
 			ret = False
 		return ret
 	
-	def isPassageWay(self,roomA,roomB):
+	def isRoom(self):
+		return False
+		
+	def isPassageWay(self):
+		return True
+	
+	def isPassageWayFor(self,roomA,roomB):
 		ret = False
 		if (self.roomA == roomA) and (self.roomB == roomB):
 			ret = True

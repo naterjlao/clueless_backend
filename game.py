@@ -32,7 +32,7 @@ class Game:
 	
 		self.playerlist = PlayerList(self.logger)
 		self.gameboard = Gameboard(self.logger)
-		self.cardManager = CardManager(self.logger)
+		self.cardmanager = CardManager(self.logger)
 		self.state = STATE_INITIAL
 		self.currentPlayer = None # NOTE the player Object, not the ID
 		self.suggestionCharacter = None
@@ -66,12 +66,6 @@ class Game:
 	########################################################################
 	# Returns a Dictionary. The same dictionary is sent to ALL players
 	def getGamestate(self):
-		''' CANDIDATE FOR DEPRECATION
-		if (self.state == STATE_INITIAL):
-			playerId = "No current player, game has not started"
-		else:
-			playerId = self.currentPlayer.getID()
-		'''
 		currentPlayer = self.playerlist.getCurrentPlayer()
 		currentPlayerId = "No current player, game has not started" if currentPlayer == None else currentPlayer.getID()
 
@@ -136,7 +130,12 @@ class Game:
 		
 	# Returns a list of Dictionaries that are sent to each player
 	def getCardlists(self):
-		return [] # TODO
+		data = []
+		for player in self.playerlist.getPlayers():
+			# I heard you like one-liners (converts the card object into their string representation)
+			cards = list(map(lambda c: str(c), self.cardmanager.getCards(player)))
+			data.append({PLAYER_ID:player.getID(),DIRTY:True,PAYLOAD:{"cardList":cards}})
+		return data
 		
 	# Returns a list of Dictionaries that are sent to each player
 	def getMessages(self):
@@ -174,10 +173,15 @@ class Game:
 	# - no other players will join
 	# - the CardManager is properly initialized
 	def startGame(self):
-		# TODO
 		# Remove all suspects from the available characters list
+		self.playerlist.lockAvailableCharacters()
+		
+		# Load up the case file
+		self.cardmanager.loadCaseFile()
+
 		# Assign out the cards to the players
-		# Generate the case file with a random selection of cards
+		self.cardmanager.assign(self.playerlist)
+
 		# Assign the starting positions of all the players
 		self.gameboard.intializePlayers(self.playerlist)
 		

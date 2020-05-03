@@ -27,7 +27,7 @@ class Player:
 		self.messageColor = "blue" # Setting to default for now
 		self.cards = []
 		self.checklist = []
-		self.state = "IN_PLAY" # "WIN", "LOSE"
+		self.state = PLAYER_IN_PLAY # It is assumed that when a player is made, he's automatically thrown to in play
 		self.logger.log("Added player %s" % playerId)
 	
 	def __str__(self):
@@ -74,7 +74,7 @@ class Player:
 	
 	# Returns True if the Player is eligible to make a suggestion
 	def isSuggestionValid(self):
-		return False # TODO review the requirements for the game at the target state
+		return self.state == PLAYER_SUGGEST # TODO make sure this get thrown back to IN_PLAY
 		
 	# Associates a suspect string name to this player
 	# Note: we assume that the selection is good.
@@ -185,6 +185,13 @@ class PlayerList:
 			if player.playerId == playerId:
 				target = player
 		return target
+
+	# This must be called when the player has started the game,
+	# players should no longer be able to select new characters
+	def lockAvailableCharacters(self):
+		self.logger.log("Available characters lockdown")
+		# Blow away all available characters that can be picked
+		self.availableCharacters = []
 
 	# Returns a list of dictionaries that contain the state of
 	# every player

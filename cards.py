@@ -125,7 +125,7 @@ class CardManager:
 		if (candidate_suspect == None) or (candidate_weapon == None) or (candidate_room == None):
 			raise BackException("could not load the case file... might be another issue")
 		else:
-			self.logger.log("loading up the case file with: %s, %s, %s")
+			self.logger.log("loading up the case file with: %s, %s, %s" % (str(candidate_suspect),str(candidate_weapon),str(candidate_room)))
 			self.casefile = CaseFile(candidate_suspect,candidate_weapon,candidate_room,self.logger)
 			# Make sure to change the states of the cards that were loaded
 			candidate_suspect.assignTo(self.casefile)
@@ -152,7 +152,6 @@ class CardManager:
 			
 			# Pick a random card from the available cards pool and assign it
 			# a player in a round table fashion
-			print(len(availCards))
 			availCards[random.randrange(len(availCards))].assignTo(players[idx])
 			
 			idx = (idx + 1) % len(players) # wrap around

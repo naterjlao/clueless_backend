@@ -85,7 +85,10 @@ class Game:
 	# When a game exception is thrown, do not crash, instead alert the current
 	# user that the choice is invalid
 	def handleGameException(self,gexc):
-		pass # so far, do nothing.
+		if DEBUG:
+			print(gexc.msg)
+		# TODO update the message on the player that raised the exception
+	
 	
 	########################################################################
 	# PUBLIC INTERFACE TARGETED METHOD SENDERS

@@ -180,23 +180,32 @@ class Gameboard:
 		# Find all possible locations the player can go
 		# There is a special exception to players that are currently in their initial positions
 		if current_loc == self.initial:
-			# Find the initial passageway that the player is supposed to go to
-			idx = SUSPECTS.index(player.getSuspect())	# Reference the player's index position
-			roomAidx, roomBidx = INITIAL[idx]			# Map the index to the INITIAL tuple
-			roomA = self.getRoom(ROOMS[roomAidx])		# Find the referenced rooms
-			roomB = self.getRoom(ROOMS[roomBidx])
-			passageway = self.getPassageway(roomA,roomB)
-			ret = [passageway]							# Return the singleton list of one passageway
+			ret = [self.determineInitPassageway(player)]	# Return the singleton list of one passageway
 		elif current_loc != None:
 			ret = current_loc.getChoices()
 		else:
-			ret = []									# This only occurs if the game has not started
+			ret = []										# This only occurs if the game has not started
 		return ret
+	
+	# Should only be called when a player is at his intial position
+	# We determine what passageway the player will go to as his
+	# opening move
+	def determineInitPassageway(self,player):
+		idx = SUSPECTS.index(player.getSuspect())		# Reference the player's index position
+		roomAidx, roomBidx = INITIAL[idx]				# Map the index tot he INITIAL tuple
+		roomA = self.getRoom(ROOMS[roomAidx])			# Find the referenced rooms
+		roomB = self.getRoom(ROOMS[roomBidx])
+		passageway = self.getPassageway(roomA,roomB)
+		return passageway
 	
 	# Returns True iff the movement is valid from one location to another
 	# This is based on the state of succeeding location and the current player's state
-	def validMove(self,start,dest):
-		return dest in start.getChoices()
+	# There is an edge case for the initial starting position
+	def validMove(self,player,start,dest):
+		if start == self.initial:
+			return self.determineInitPassageway(player) == dest
+		else:
+			return dest in start.getChoices()
 	
 	# Moves the player to the associated room of choice if possible
 	# The force parameter shall only be used if the player needs to
@@ -205,25 +214,26 @@ class Gameboard:
 	def movePlayer(self,player,choiceName,forced=False):
 		start = self.getPlayerLoc(player)
 		dest = self.getLoc(choiceName)
-		
+	
 		if forced:
+		
 			# Move the player to the next location without validation
-			self.logger.log("Moving %s from %s to %s" % (player.getName(),start.getName(),dest.getName()))
+			self.logger.log("Forcefully moving %s from %s to %s" % (str(player),start.getName(),dest.getName()))
 			start.removePlayer(player)
 			dest.addPlayer(player)
 			
 			# This player has just been suggested, the player must be in a state of defend
 			player.state = PLAYER_DEFEND
 		
-		elif self.validMove(start,dest):
+		elif self.validMove(player,start,dest):
 		
 			# Move the player to the next location
-			self.logger.log("Moving %s from %s to %s" % (player.getName(),start.getName(),dest.getName()))
+			self.logger.log("Moving %s from %s to %s" % (str(player),start.getName(),dest.getName()))
 			start.removePlayer(player)
 			dest.addPlayer(player)
 			
 			# If the player had just moved to a room, he must make a suggestion
-			if (dest.isHallway()):
+			if (dest.isPassageWay()):
 				player.state = PLAYER_SUGGEST
 		else:
 			GameException(player,"Invalid move")

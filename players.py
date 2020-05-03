@@ -178,6 +178,14 @@ class PlayerList:
 	def getAvailableCharacters(self):
 		return self.availableCharacters
 	
+	# Returns a list of strings that represent the suspects
+	# that were already picked in the game.
+	def getCharactersInGame(self):
+		characters = []
+		for player in self.getPlayers():
+			characters.append(player.getSuspect())
+		return characters
+		
 	# Returns the Player object based on playerId string
 	def getPlayer(self,playerId):
 		target = None

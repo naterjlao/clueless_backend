@@ -73,6 +73,7 @@ class Game:
 				"currentPlayerId"     : currentPlayerId,
 				"turnStatus"          : self.state,
 				"availableCharacters" : self.playerlist.getAvailableCharacters(),
+				"characters_in_game"  : self.playerlist.getCharactersInGame(),
 				"game_has_begun"      : (self.state != STATE_INITIAL)
 			}
 		return ret

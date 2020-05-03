@@ -206,8 +206,9 @@ class Game:
 		pass
 	
 	def passTurn(self,playerId):
+		currentPlayer = self.playerlist.getCurrentPlayer()
 		# A pass turn signal can only be triggered by the current player
-		if self.playerlist.getCurrentPlayer().getID() == playerId:
+		if (currentPlayer != None) and (currentPlayer.getID() == playerId):
 			self.playerlist.nextCurrentPlayer()
 		else:
 			pass # TODO send a message to all other players that you cannot pass turn at this state

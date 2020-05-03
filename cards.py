@@ -147,9 +147,8 @@ class CardManager:
 		# about the complexity of this algorithm
 		availCards = self.getAvailableCards() # why doesn't python have do-while loops?
 		players = playerlist.getPlayers()
+		idx = 0 # players index
 		while len(availCards) > 0:
-			idx = 0 # players index
-			
 			# Pick a random card from the available cards pool and assign it
 			# a player in a round table fashion
 			availCards[random.randrange(len(availCards))].assignTo(players[idx])

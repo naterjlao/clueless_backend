@@ -6,16 +6,6 @@ sys.path.append('..')
 from game import Game
 
 g = Game()
-g.addPlayer("Bob")
-g.addPlayer("Nancy")
-g.addPlayer("Rose")
-g.addPlayer("Carl")
-
-g.selectSuspect("Bob","Colonel Mustard")
-g.selectSuspect("Nancy","Miss Scarlet")
-g.selectSuspect("Rose","Professor Plum")
-g.selectSuspect("Carl","Mr Green")
-
 def cycle():
 	print("---------------------------> CYCLE <---------------------------")
 	print("------gamestate------")
@@ -37,6 +27,19 @@ def cycle():
 	print("------messages------")
 	print(g.getMessages())
 	print("-------------------------> END CYCLE <-------------------------")
+
+cycle()
+g.addPlayer("Bob")
+g.addPlayer("Nancy")
+g.addPlayer("Rose")
+g.addPlayer("Carl")
+
+g.selectSuspect("Bob","Colonel Mustard")
+g.selectSuspect("Nancy","Miss Scarlet")
+g.selectSuspect("Rose","Professor Plum")
+g.selectSuspect("Carl","Mr Green")
+
+
 
 cycle()
 g.startGame()

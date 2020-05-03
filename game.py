@@ -62,14 +62,18 @@ class Game:
 	# This dictionary will be sent to all players at the same signal cycle.
 	########################################################################
 	# Returns a Dictionary. The same dictionary is sent to ALL players
-	def getGamestate(self):	
+	def getGamestate(self):
+		''' CANDIDATE FOR DEPRECATION
 		if (self.state == STATE_INITIAL):
 			playerId = "No current player, game has not started"
 		else:
 			playerId = self.currentPlayer.getID()
+		'''
+		currentPlayer = self.playerlist.getCurrentPlayer()
+		currentPlayerId = "No current player, game has not started" if currentPlayer == None else currentPlayer.getID()
 
 		ret = {
-				"currentPlayerId"     : playerId,
+				"currentPlayerId"     : currentPlayerId,
 				"turnStatus"          : self.state,
 				"availableCharacters" : self.playerlist.getAvailableCharacters(),
 				"game_has_begun"      : (self.state != STATE_INITIAL)
@@ -179,6 +183,9 @@ class Game:
 		self.gameboard.intializePlayers(self.playerlist)
 		
 		# Set the starting player
+		self.playerlist.startGame()
+		
+		''' CANDIDATE FOR DEPRECATION
 		startPlayer = None
 		idx = 0
 		while (startPlayer == None) and idx < len(SUSPECTS):
@@ -186,6 +193,7 @@ class Game:
 			idx += 1
 		self.logger.log("setting first player: %s" % startPlayer)
 		self.currentPlayer = startPlayer
+		'''
 	
 		# Set the game state to STARTED
 		self.state = STATE_STARTED
@@ -198,7 +206,11 @@ class Game:
 		pass
 	
 	def passTurn(self,playerId):
-		pass
+		# A pass turn signal can only be triggered by the current player
+		if self.playerlist.getCurrentPlayer().getID() == playerId:
+			self.playerlist.nextCurrentPlayer()
+		else:
+			pass # TODO send a message to all other players that you cannot pass turn at this state
 		
 	def startSuggestion(self,playerId):
 		pass

@@ -24,6 +24,10 @@ LOCATION='location'
 # GAME VARIABLES
 ################################################################################
 
+# Minimal number of players to play the game
+MIN_PLAYERS = 2
+MAX_PLAYERS = 6
+
 # Game status values
 STATE_INITIAL = "INITIAL"			# Indicates that the game has not started, players are not set at this point
 STATE_STARTED = "STARTED"			# Indicates that the game is in progress, players are able to move on the board

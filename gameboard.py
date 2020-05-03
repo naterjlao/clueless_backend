@@ -85,7 +85,6 @@ class Gameboard:
 			# Printout the suspect names within the room
 			for rowIdx in range(0,len(SUSPECTS)):
 				for x in range(0, self.dimension):
-					rowIdx = 0
 					players = self.getRoomByCoor(x,y).getPlayers()
 					ret += "|"
 					if rowIdx < len(players):
@@ -107,7 +106,8 @@ class Gameboard:
 			ret += str(pway) + " "
 			ret += "(%s, %s)" % (pway.roomA, pway.roomB)
 			ret += ": "
-			ret += str(pway.getPlayers())
+			for player in pway.getPlayers():
+				ret += str(player)
 			ret += "\n"
 
 		for idx in range(0,(bufferspace*self.dimension) + self.dimension + 1):
@@ -308,7 +308,7 @@ class Room:
 	# Returns all potential movement choices based on this Room's position 
 	def getChoices(self):
 		ret = []
-		for pway in self.passageway:			# See if the passageway is valid
+		for pway in self.passageways:			# See if the passageway is valid
 			if (not pway.isOccupied):			# Add to the list of options
 				ret.append(pway)
 		if self.secretpassage != None:
@@ -405,14 +405,11 @@ class PassageWay:
 	def hasPlayer(self,player):
 		return player == self.player
 	
-	def removePlayer(self,player):
-		self.player = None	# TODO GameError verification
-	
 	# Removes the Player from the Hallway.
 	# Returns the Player that was removed
 	# If there was no Player, returns None
-	def removePlayer(self):
+	def removePlayer(self,player):
 		player = self.player
 		self.player = None
-		return player
+		return player # TODO GameError validation
 	

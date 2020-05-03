@@ -30,7 +30,7 @@ class Player:
 		self.logger.log("Added player %s" % playerId)
 	
 	def __str__(self):
-		return "%s : %s" % (str(self.playerId), str(self.suspect))
+		return "%s (%s)" % (str(self.suspect), str(self.playerId))
 	
 	# Returns the ID of a player
 	def getID(self):
@@ -80,6 +80,7 @@ class PlayerList:
 	def __init__(self,logger):
 		self.logger = logger
 		self.players = []
+		self.currentPlayer = None
 		self.availableCharacters = []
 		for suspect in SUSPECTS:
 			self.availableCharacters.append(suspect)
@@ -90,6 +91,57 @@ class PlayerList:
 			ret += str(player)
 			ret += "\n"
 		return ret
+	
+	# Returns the player object representing the current player who has the turn in the game
+	def getCurrentPlayer(self):
+		return self.currentPlayer
+	
+	# Picks the next player to have a turn, this is based on the SUSPECTS list
+	def nextCurrentPlayer(self):
+		# Determine the index of the current player in respect to the SUSPECTS list
+		foundIdx = 0
+		found = False
+		while (foundIdx < len(SUSPECTS)) and (not found):
+			# Breaks when the suspect of current player is found in the SUSPECTS list
+			if (self.currentPlayer.getSuspect() == SUSPECTS[foundIdx]):
+				found = True
+			else:
+				foundIdx += 1
+		# Increment in the index and modulo if necessary
+		idx = (foundIdx + 1) % len(SUSPECTS)
+		candidate = None
+		
+		# Loop through the SUSPECTS list, the next player who has
+		# a turn is based on the next character in the list
+		while (idx < len(SUSPECTS)) and (candidate == None):
+			# At this point, we've wrapped around around the 
+			# SUSPECTS list, but we couldn't find the next player
+			if idx == foundIdx:	
+				raise GameError("could not find the next player based on SUSPECT list")
+			else:
+				# Determine if the suspect is being used by a player
+				candidate = self.getPlayerBySuspect(SUSPECTS[idx])
+				# Else, increment the index
+				idx = (idx + 1) % len(SUSPECTS)
+		
+		self.logger.log("Determined the next player: %s" % str(candidate))
+		self.currentPlayer = candidate
+	
+	# Sets up the starting player for the game
+	def startGame(self):
+		if len(self.players) < MIN_PLAYERS:
+			raise GameError("need at least %d players to play the game, only found %d" % (MIN_PLAYERS,len(self.players)))
+		elif len(self.players) > MAX_PLAYERS:
+			raise GameError("need at most %d players to play the game, only found %d" % (MAX_PLAYERS,len(self.players)))
+		else:
+			# Find the starting player based on the order of suspects
+			startPlayer = None
+			idx = 0
+			while (startPlayer == None) and idx < len(SUSPECTS):
+				startPlayer = self.getPlayerBySuspect(SUSPECTS[idx])
+				idx += 1
+			self.logger.log("setting first player: %s" % startPlayer)
+			self.currentPlayer = startPlayer
 	
 	# Adds a Player to the PlayerList with playerId
 	# If the player already exists, return False else True

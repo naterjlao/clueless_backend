@@ -36,7 +36,8 @@ class Player:
 	def validatePlayer(self):
 		if self.state != PLAYER_INITIAL:
 			raise GameException(self,"player %s is not in initial state" % self.playerId)
-		self.getSuspect() # this already verifies if a suspect has be picked
+		if self.suspect == None:
+			raise GameException("all","player %s does not have a suspect character" % self.playerId)
 	
 	# Returns the ID of a player
 	def getID(self):
@@ -44,8 +45,6 @@ class Player:
 	
 	# Returns the suspect name of a player
 	def getSuspect(self):
-		if self.suspect == None:
-			raise GameException("all","player %s does not have a suspect character" % player.playerId)
 		return self.suspect
 	
 	# Updates the player's personal message for UI
@@ -205,7 +204,9 @@ class PlayerList:
 	def getCharactersInGame(self):
 		characters = []
 		for player in self.getPlayers():
-			characters.append(player.getSuspect())
+			suspect = player.getSuspect()
+			if suspect != None:
+				characters.append(suspect)
 		return characters
 		
 	# Returns the Player object based on playerId string

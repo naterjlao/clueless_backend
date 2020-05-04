@@ -56,8 +56,6 @@ class Game:
 	def updateTurnStatus(self):
 		self.turnStatus = self.gameboard.updateTurnStatus()
 	
-	# Game
-	
 	
 	########################################################################
 	# PUBLIC INTERFACE GLOBAL METHOD SENDERS

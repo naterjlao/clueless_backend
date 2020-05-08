@@ -62,6 +62,15 @@ class Gameboard:
 							self.passageways.append(candidatePWay)
 		for pway in self.passageways:
 			self.logger.log("Passageway generated: %s" % pway)
+			
+		# Add the super secret passages
+		for secret in SECRET_PASSAGES:
+			destA, destB = secret
+			destA = self.getRoom(destA)
+			destB = self.getRoom(destB)
+			self.logger.log("Adding secret passages %s <-> %s" % (destA, destB))
+			destA.addSecretPassage(destB)
+			destB.addSecretPassage(destA)
 	
 	def __str__(self):
 		ret = ""
@@ -202,6 +211,10 @@ class Gameboard:
 	# This is based on the state of succeeding location and the current player's state
 	# There is an edge case for the initial starting position
 	def validMove(self,player,start,dest):
+		# Check if the player is not locked
+		if player.state == PLAYER_LOCKED:
+			raise GameException(player, "cannot move right now")
+	
 		if start == self.initial:
 			return self.determineInitPassageway(player) == dest
 		else:
@@ -235,6 +248,10 @@ class Gameboard:
 			# If the player had just moved to a room, he MUST make a suggestion
 			if (dest.isRoom()):
 				player.state = PLAYER_SUGGEST
+				
+			# If the player moved into a hallway
+			else:
+				player.state = PLAYER_IN_PLAY
 		else:
 			GameException(player,"Invalid move")
 

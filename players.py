@@ -79,11 +79,6 @@ class Player:
 			"isSuggestionValid" : self.isSuggestionValid()
 		}
 	
-	# Returns a list of strings where the player may go to
-	# at the current position
-	def getMoveOption(self):
-		pass # TODO
-	
 	# Returns True if the Player is eligible to make a suggestion
 	def isSuggestionValid(self):
 		# A player is only able to make a suggestion iff he is in a room

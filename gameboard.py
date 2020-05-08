@@ -232,8 +232,8 @@ class Gameboard:
 			start.removePlayer(player)
 			dest.addPlayer(player)
 			
-			# If the player had just moved to a room, he must make a suggestion
-			if (dest.isPassageWay()):
+			# If the player had just moved to a room, he MUST make a suggestion
+			if (dest.isRoom()):
 				player.state = PLAYER_SUGGEST
 		else:
 			GameException(player,"Invalid move")

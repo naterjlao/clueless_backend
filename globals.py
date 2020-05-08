@@ -43,6 +43,7 @@ PLAYER_ACCUSE   = "ACCUSE"			# The player must make an accusation
 PLAYER_DEFEND   = "DEFEND"			# The player must return a defense to the accusation or suggestion
 PLAYER_WIN      = "WIN"				# The player has won the game, the game should be at the END state
 PLAYER_LOSE     = "LOSE"			# The player has lost the game and may no longer progress
+PLAYER_LOCKED   = "LOCKED"          # The player cannot make a move at this point
 
 CARD_UNASSIGNED = "UNASSIGNED"		# The card is currently held by a player or case file
 CARD_CASE_FILE  = "CASE_FILE"		# The card is held by the case file

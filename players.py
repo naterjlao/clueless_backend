@@ -61,6 +61,7 @@ class Player:
 	def getMessage(self):
 		return self.message,self.messageColor
 		
+		
 	# Adds a card to the Player's hand
 	# The number of cards given to player is dependent on the number of players
 	# in the game. This is because the cards are equally dispersed once the
@@ -85,7 +86,24 @@ class Player:
 	
 	# Returns True if the Player is eligible to make a suggestion
 	def isSuggestionValid(self):
+		# A player is only able to make a suggestion iff he is in a room
+		# This state is handled by movement on the gameboard
+		# If the player has moved to a room by his own will, he MUST make a suggestion
+		# If the player was forced to a room, a suggestion is optional
 		return self.state == PLAYER_SUGGEST # TODO make sure this get thrown back to IN_PLAY
+	
+	# Processes a suggestion request, the player is LOCKED until the suggestion is
+	# satisfied. Afterwards, the player is in play and turn is incremented to the next player
+	# in the cycle.
+	def makeSuggestion(self):
+		# The playerlist
+		
+		
+		pass
+		
+		
+		
+		# Push the state to IN_PLAY
 		
 	# Associates a suspect string name to this player
 	# Note: we assume that the selection is good.
@@ -122,6 +140,29 @@ class PlayerList:
 	def validatePlayers(self):
 		for player in self.players:
 			player.validatePlayer()
+	
+	# Processes a make suggestion for all of the players,
+	def makeSuggestion(self,suggestion,gameboard):
+		for player in self.players:
+			# Lock all players
+			player.state = PLAYER_LOCKED
+			
+			# Get the target player
+			target = suggestion.target
+			
+			# Move the target to suggestion room
+			gameboard.movePlayer(target,suggestion.room,force=True)
+			
+			# Set the target's state to SUGGESTION
+			target.state = PLAYER_SUGGEST
+			
+			
+	# Enables all players to move and determines the state of the target player
+	def processSuggestion(self,suggestion,casefile):
+		
+		for player in self.players:
+			pass # my life into pieces
+	
 	
 	# Returns true only if the current player is the given player
 	def hasTurn(self,player):
@@ -272,3 +313,78 @@ class PlayerList:
 			self.logger.log("Available characters: %s" % (self.availableCharacters))
 		else:
 			raise GameException(playerId,("%s is not a suspect name" % suspect))
+
+
+
+# Class definition of a suggestion object bc object oriented programming
+# is supposed to make life easier by encapsulation what is a NEED TO KNOW
+# versus WHAT HAPPENS UNDER THE HOOD. If a class is fucked, then we can
+# at least narrow down the shit.
+class Suggestion:
+
+	# Note that all parameters MUST be strings.
+	def __init__(self,target,weapon,room):
+		if target.__class__ != str:
+			raise GameError("make sure target in Suggestion is a string")
+		if weapon.__class__ != str:
+			raise GameError("make sure weapon in Suggestion is a string")
+		if room.__class__ != str:
+			raise GameError("make sure room in Suggestion is a string")
+			
+		self.logger.log("spawned Suggestion %s %s %s" % (target,weapon,room))
+		
+		self.target = target
+		self.weapon = weapon
+		self.room = room
+	
+	# This returns True if the Suggestion can be countered
+	# False otherwise. The counter object can be either
+	# a character, weapon or room. (A character because the
+	# the target player can hold a card of himself, ergo
+	# he has an alibi.)
+	def counter(self,counter):
+		ret = False
+		if counter == self.target:
+			ret = True
+		if counter == self.weapon:
+			ret = True
+		if counter == self.room:
+			ret = True
+		return ret
+	
+# Class definition of an Accusation. See Suggestion.
+class Accusation
+	# Note that all parameters MUST be strings.
+	def __init__(self,target,weapon,room):
+		if target.__class__ != str:
+			raise GameError("make sure target in Accusation is a string")
+		if weapon.__class__ != str:
+			raise GameError("make sure weapon in Accusation is a string")
+		if room.__class__ != str:
+			raise GameError("make sure room in Accusation is a string")
+			
+		self.logger.log("spawned Accusation %s %s %s" % (target,weapon,room))
+		
+		self.target = target
+		self.weapon = weapon
+		self.room = room
+	
+	# This returns True if the accusation can be countered
+	# False otherwise. The counter object can be either
+	# a character, weapon or room. (A character because the
+	# the target player can hold a card of himself, ergo
+	# he has an alibi.)
+	def counter(self,counter):
+		ret = False
+		if counter == self.target:
+			ret = True
+		if counter == self.weapon:
+			ret = True
+		if counter == self.room:
+			ret = True
+		return ret
+		
+	# Returns True if the accusation matches the casefile
+	# False otherwise
+	def checkCasefile(self,casefile):
+		return casefile.checkAccusation(self.target,self.weapon,self.room)

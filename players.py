@@ -323,7 +323,7 @@ class PlayerList:
 class Suggestion:
 
 	# Note that all parameters MUST be strings.
-	def __init__(self,target,weapon,room):
+	def __init__(self,target,weapon,room,logger):
 		if target.__class__ != str:
 			raise GameError("make sure target in Suggestion is a string")
 		if weapon.__class__ != str:
@@ -331,6 +331,7 @@ class Suggestion:
 		if room.__class__ != str:
 			raise GameError("make sure room in Suggestion is a string")
 			
+		self.logger = logger
 		self.logger.log("spawned Suggestion %s %s %s" % (target,weapon,room))
 		
 		self.target = target
@@ -353,9 +354,9 @@ class Suggestion:
 		return ret
 	
 # Class definition of an Accusation. See Suggestion.
-class Accusation
+class Accusation:
 	# Note that all parameters MUST be strings.
-	def __init__(self,target,weapon,room):
+	def __init__(self,target,weapon,room,logger):
 		if target.__class__ != str:
 			raise GameError("make sure target in Accusation is a string")
 		if weapon.__class__ != str:
@@ -363,6 +364,7 @@ class Accusation
 		if room.__class__ != str:
 			raise GameError("make sure room in Accusation is a string")
 			
+		self.logger = logger
 		self.logger.log("spawned Accusation %s %s %s" % (target,weapon,room))
 		
 		self.target = target

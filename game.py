@@ -262,6 +262,10 @@ class Game:
 			# Must validate that it is the current player's turn
 			if self.playerlist.hasTurn(player):
 				self.gameboard.movePlayer(player,choice)
+				# If the player has just moved to a room, he must make a suggestion
+				# Else, the turn counter is incremented
+				if (player.state != PLAYER_SUGGEST):
+					self.playerlist.nextCurrentPlayer()
 			else:
 				raise GameException(player,"Cannot move, it is not your turn")
 				
@@ -273,7 +277,7 @@ class Game:
 		try:
 			player = self.playerlist.getPlayer(playerId)
 			# A player can only select a card if he is under suggestion or accusation
-			if (player.state == PLAYER_SUGGEST or player.state == PLAYER_ACCUSE):
+			if (player.state == PLAYER_DEFEND):
 				player.disprove()
 			else:
 				raise GameException(player,"cannot select a card, not on trial")
@@ -282,19 +286,24 @@ class Game:
 			self.handleGameException(gexc)
 	
 	def passTurn(self,playerId):
-		currentPlayer = self.playerlist.getCurrentPlayer()
-		# A pass turn signal can only be triggered by the current player
-		if (currentPlayer != None) and (currentPlayer.getID() == playerId):
-			self.playerlist.nextCurrentPlayer()
-		else:
-			pass # TODO send a message to all other players that you cannot pass turn at this state
-		
-		
-	''' DEPRECATE
-	def startSuggestion(self,playerId):
-		pass
-	'''
+		try:
+			currentPlayer = self.playerlist.getCurrentPlayer()
+			# A pass turn signal must be 
+			# - triggered by the current player,
+			# - the current player must not be forced to make a suggestion
+			# - the current player must not be in a state of defense
+			if (currentPlayer != None) and (currentPlayer.getID() == playerId) \
+				and (currentPlayer.state != PLAYER_SUGGEST) \
+				and (currentPlayer.state != PLAYER_DEFEND):
+				self.playerlist.nextCurrentPlayer()
+			else:
+				raise GameException(player,"cannot pass turn")
+		except GameException as gexc:
+			self.handleGameException(gexc)
 	
+	
+	def startSuggestion(self,playerId):
+		pass # NOT USED
 	
 	# The player suggests an accused player
 	def proposeSuggestion(self,playerId,suspect,weapon):
@@ -312,11 +321,9 @@ class Game:
 	def dispoveSuggestion(self,playerId,card,type,cannotDisprove):
 		currentPlayer = self.playerlist.getPlayer(playerId)
 		currentPlayer.disprove(self.state,card)
-
-	''' DEPRECATE
+	
 	def startAccusation(self,playerId):
-		pass
-	'''
+		pass # NOT USED
 	
 	def proposeAccusation(self,playerId,accussedId,weapon,room):
 		pass # NOTE The options for an accusation is not constrained

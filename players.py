@@ -32,7 +32,7 @@ class Player:
 	def __str__(self):
 		return "%s (%s)" % (str(self.suspect), str(self.playerId))
 	
-	# Does nothing but raises a GameException if the player 
+	# Does nothing but raises a GameException if the player is not ready to play
 	def validatePlayer(self):
 		if self.state != PLAYER_INITIAL:
 			raise GameException(self,"player %s is not in initial state" % self.playerId)
@@ -94,21 +94,6 @@ class Player:
 		# The playerlist
 		pass
 		# Push the state to IN_PLAY
-	
-	'''
-	# Given card name string, the player must prove or disprove the suggestion
-	def disprove(self,type,choice):
-		if (type == STATE_SUGGESTION):
-			pass # TODO
-			
-			
-			
-			self.state = PLAYER_IN_PLAY
-		elif (type == STATE_ACCUSATION):
-			pass # TODO
-		else:
-			raise GameException(self,"cannot disprove if not on trial")
-	'''
 	
 	# Associates a suspect string name to this player
 	# Note: we assume that the selection is good.

@@ -92,14 +92,24 @@ class Player:
 	# in the cycle.
 	def makeSuggestion(self):
 		# The playerlist
-		
-		
 		pass
-		
-		
-		
 		# Push the state to IN_PLAY
-		
+	
+	'''
+	# Given card name string, the player must prove or disprove the suggestion
+	def disprove(self,type,choice):
+		if (type == STATE_SUGGESTION):
+			pass # TODO
+			
+			
+			
+			self.state = PLAYER_IN_PLAY
+		elif (type == STATE_ACCUSATION):
+			pass # TODO
+		else:
+			raise GameException(self,"cannot disprove if not on trial")
+	'''
+	
 	# Associates a suspect string name to this player
 	# Note: we assume that the selection is good.
 	# (ie. the player cannot select a suspect that is already choosen

@@ -126,11 +126,57 @@ class Game:
 
 	# Returns a list of Dictionaries that are sent to each player
 	def getSuggestionOptions(self):
-		return [] # TODO
+		# If a player is at a room, he can make a suggestion
+		data = []
+		if (self.state != STATE_INITIAL):
+			allPlayers = self.playerlist.getPlayers()
+			for player in allPlayers:
+				self.logger.log("getting suggestions options for %s" % player)
+				# A player can only suggest, if he can suggest
+				if (player.state == PLAYER_SUGGEST):
+					accusePlayerOptions = []
+					# under the fifth amendment, you are protected against self-incrimination
+					for p in allPlayers:
+						if (p != player):
+							accusePlayerOptions.append(p)
+					# get the suspect names, not player id
+					accuseOptions = list(map(lambda p : p.getSuspect(), accusePlayerOptions))
+					# get all weapons
+					weaponOptions = WEAPONS
+					
+					# only get the room the player is currently at
+					if self.gameboard.getPlayerLoc(player).isPassageWay():
+						raise BackException("you cannot suggest in a passageway")
+					roomOptions = [self.gameboard.getPlayerLoc(player).getName()]
+					payload = {"suspects":accuseOptions,"weapons":weaponOptions,"rooms":roomOptions}
+					data.append({PLAYER_ID:player.playerId,DIRTY:True,PAYLOAD:payload})
+		return data
 		
 	# Returns a list of Dictionaries that are sent to each player
 	def getAccusationOptions(self):
-		return [] # TODO
+		# If a player is at a room, he can make a suggestion
+		data = []
+		if (self.state != STATE_INITIAL):
+			allPlayers = self.playerlist.getPlayers()
+			for player in allPlayers:
+				self.logger.log("getting accusation options for %s" % player)
+				# A player can accuse at anytime
+				accusePlayerOptions = []
+				# under the fifth amendment, you are protected against self-incrimination
+				for p in allPlayers:
+					if (p != player):
+						accusePlayerOptions.append(p)
+				# get the suspect names, not player id
+				accuseOptions = list(map(lambda p : p.getSuspect(), accusePlayerOptions))
+				# get all weapons
+				weaponOptions = WEAPONS
+				
+				# get all rooms
+				roomOptions = ROOMS
+				
+				payload = {"suspects":accuseOptions,"weapons":weaponOptions,"rooms":roomOptions}
+				data.append({PLAYER_ID:player.playerId,DIRTY:True,PAYLOAD:payload})
+		return data
 		
 	# Returns a list of Dictionaries that are sent to each player
 	def getChecklists(self):
@@ -224,7 +270,16 @@ class Game:
 			self.handleGameException(gexc)
 		
 	def selectCard(self,playerId,choice):
-		pass
+		try:
+			player = self.playerlist.getPlayer(playerId)
+			# A player can only select a card if he is under suggestion or accusation
+			if (player.state == PLAYER_SUGGEST or player.state == PLAYER_ACCUSE):
+				player.disprove()
+			else:
+				raise GameException(player,"cannot select a card, not on trial")
+				
+		except GameException as gexc:
+			self.handleGameException(gexc)
 	
 	def passTurn(self,playerId):
 		currentPlayer = self.playerlist.getCurrentPlayer()
@@ -234,19 +289,42 @@ class Game:
 		else:
 			pass # TODO send a message to all other players that you cannot pass turn at this state
 		
+		
+	''' DEPRECATE
 	def startSuggestion(self,playerId):
 		pass
-	def proposeSuggestion(self,playerId,accussedId,weapon):
-		pass
+	'''
+	
+	
+	# The player suggests an accused player
+	def proposeSuggestion(self,playerId,suspect,weapon):
+		currentPlayer = self.playerlist.getPlayer(playerId)
+		accusedPlayer = self.playerlist.getPlayerBySuspect(suspect)
+		
+		# Force move the accused player to the room the currentPlayer is at
+		
+		
+		
+		
+		
+	
+	# NOTE Argument type is redundant, card can be derived by the gamestate because that trivial	
 	def dispoveSuggestion(self,playerId,card,type,cannotDisprove):
-		pass # NOTE Argument type is redundant, card can be derived by the gamestate because that trivial
+		currentPlayer = self.playerlist.getPlayer(playerId)
+		currentPlayer.disprove(self.state,card)
 
+	''' DEPRECATE
 	def startAccusation(self,playerId):
 		pass
+	'''
+	
 	def proposeAccusation(self,playerId,accussedId,weapon,room):
 		pass # NOTE The options for an accusation is not constrained
+	
+	# NOTE Argument <type> is redundant, card can be derived by the game itself because this is stupidly trivial
 	def disproveAccusation(self,playerId,card,type,cannotDisprove):
-		pass # NOTE Argument <type> is redundant, card can be derived by the game itself because this is stupidly trivial
+		currentPlayer = self.playerlist.getPlayer(playerId)
+		currentPlayer.disprove(self.state,card)
 		
 	# Gracefully remove the player from the game
 	def removePlayer(self,playerId):

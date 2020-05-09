@@ -249,7 +249,7 @@ class Gameboard:
 			if (dest.isRoom()):
 				player.state = PLAYER_SUGGEST
 				
-			# If the player moved into a hallway
+			# If the player had just moved into a hallway
 			else:
 				player.state = PLAYER_IN_PLAY
 		else:
@@ -259,7 +259,7 @@ class Gameboard:
 	def removePlayer(self,player):
 		pass
 
-	# Returns Room or Passageway based on name
+	# Returns Room or Passageway based on the name of the location
 	def getLoc(self,name):
 		target = None
 		for loc in self.getAllPositions():

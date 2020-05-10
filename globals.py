@@ -31,9 +31,11 @@ MAX_PLAYERS = 6
 # Game status values
 STATE_INITIAL = "INITIAL"			# Indicates that the game has not started, players are not set at this point
 STATE_STARTED = "STARTED"			# Indicates that the game is in progress, players are able to move on the board
-STATE_SUGGESTION = "SUGGESTION"		# Indicates that the game is in a state of suggestion, certain events must occur in order to return to STARTED
-STATE_ACCUSATION = "ACCUSATION"		# Indicates that the game is in a state of accusation, certain events must occur in order to return to STARTED
-STATE_END = "END"					# Indicates that the game has ended. No more actions may occur
+STATE_MOVE    = "MOVE"              # A player needs to move
+STATE_MOVED   = "MOVED"             # A player had just moved
+STATE_SUGGESTION = "SUGGESTION"	    # Indicates that the game is in a state of suggestion, certain events must occur in order to return to STARTED
+STATE_ACCUSATION = "ACCUSATION"	    # Indicates that the game is in a state of accusation, certain events must occur in order to return to STARTED
+STATE_END = "END"                   # Indicates that the game has ended. No more actions may occur
 
 # Player status values
 PLAYER_INITIAL  = "INITIAL"			# The player is ready to play

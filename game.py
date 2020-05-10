@@ -75,6 +75,10 @@ class Game:
 				"characters_in_game"  : self.playerlist.getCharactersInGame(),
 				"game_has_begun"      : (self.state != STATE_INITIAL)
 			}
+			
+		# Revert state back to MOVE (unless a suggestion action is called)
+		self.state = STATE_MOVE
+		
 		return ret
 	
 	# Returns a Dictionary. The same dictionary is sent to ALL players
@@ -280,6 +284,9 @@ class Game:
 				# Else, the turn counter is incremented
 				if (player.state != PLAYER_SUGGEST):
 					self.playerlist.nextCurrentPlayer()
+					
+				# The player had just moved, change state to refresh UI
+				self.state = STATE_MOVED
 			else:
 				raise GameException(player,"Cannot move, it is not your turn")
 		except GameException as gexc:

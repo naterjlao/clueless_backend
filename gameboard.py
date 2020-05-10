@@ -224,11 +224,11 @@ class Gameboard:
 	# The force parameter shall only be used if the player needs to
 	# be moved because of a suggestion. If a suggestion is made to 
 	# the player, the player must move to the room of the suggestion
-	def movePlayer(self,player,choiceName,forced=False):
+	def movePlayer(self,player,choiceName,force=False):
 		start = self.getPlayerLoc(player)
 		dest = self.getLoc(choiceName)
 	
-		if forced:
+		if force:
 		
 			# Move the player to the next location without validation
 			self.logger.log("Forcefully moving %s from %s to %s" % (str(player),start.getName(),dest.getName()))

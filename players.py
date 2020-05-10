@@ -123,7 +123,6 @@ class PlayerList:
 		self.logger = logger
 		self.players = []
 		self.currentPlayer = None
-		self.currentPlayerTemp = None
 		self.availableCharacters = []
 		for suspect in SUSPECTS:
 			self.availableCharacters.append(suspect)
@@ -153,7 +152,7 @@ class PlayerList:
 			p.state = PLAYER_LOCKED
 			
 		# Get the target player
-		target = self.getPlayerBySuspect(suggestion.target)
+		target = self.getPlayerBySuspect(suggestion.suspect)
 		
 		# Move the target to suggestion room
 		gameboard.movePlayer(target,suggestion.room,force=True)
@@ -161,31 +160,37 @@ class PlayerList:
 		# Set the target's state to SUGGESTION DEFEND
 		target.state = PLAYER_DEFEND
 		# Set the turn to the target player and save the current player
-		self.currentPlayerTemp = suggestion.accuser
 		self.currentPlayer = target
 	
 	
 	# Ends a suggestion round
 	# Note that the player in this case is the target player
 	def endSuggestion(self,player,counter,suggestion,gameboard,casefile,cannotDisprove=False):
-		for p in self.players:
-			p.state = PLAYER_IN_PLAY
-		# pop the current player from tempCurrent and resume the game
-		self.currentPlayer = self.currentPlayerTemp
-		self.currentPlayerTemp = None
 		
-		# TODO there needs to be something here to push if the player
-		# TODO cannot disprove the suggestion with the cards he has
-		# TODO If this is the case, something must singal the target (accused)
-		# TODO that we cannot win the case at this point.
-		
-		
-		
+		# The player cannot disprove the suggestion, we push the move back to the accuser,
+		# at this point the accuser may be able to make an accusation
 		if (cannotDisprove):
-			# The accused had just shown a card that disprove the suggestion.
-			self.updateChecklists(suggestion.caller,counter)
+			# Reenable all players
+			for p in self.players:
+				p.state = PLAYER_IN_PLAY
+			# pop the current player from buffer
+			self.currentPlayer = suggestion.accuser
 		else:
-			self.nextCurrentPlayer()
+			# If the player cannot disprove the suggestion, with the card, the move is invalid
+			if (suggestion.counter(counter) == False):
+				raise GameException(player,"cannot disprove the suggestion with this counter")
+			# The player has successfully countered the suggestion
+			else:		
+				# Reenable all players
+				for p in self.players:
+					p.state = PLAYER_IN_PLAY
+				# pop the current player from the buffer
+				self.currentPlayer = suggestion.accuser
+				# increment the player counter
+				self.nextCurrentPlayer()
+				# update the checklist of the accuser player, since he can only
+				# see the defending card
+				suggestion.accuser.updateChecklist(counter)
 	
 	# Returns true only if the current player is the given player
 	def hasTurn(self,player):
@@ -195,33 +200,41 @@ class PlayerList:
 	def getCurrentPlayer(self):
 		return self.currentPlayer
 	
-	# Picks the next player to have a turn, this is based on the SUSPECTS list
+	# Picks the next player to have a turn, this is based on the character suspects picked in the game
 	def nextCurrentPlayer(self):
+		# Get all the characters that are being used
+		charactersInGame = self.getCharactersInGame()
+	
+		# Lets be fancy
+		charIdx = list(map(lambda c : SUSPECTS.index(c), charactersInGame))
+		charIdx.sort()
+		charactersInGame = list(map(lambda i : SUSPECTS[i], charIdx))
+	
 		# Determine the index of the current player in respect to the SUSPECTS list
 		foundIdx = 0
 		found = False
-		while (foundIdx < len(SUSPECTS)) and (not found):
+		while (foundIdx < len(charactersInGame)) and (not found):
 			# Breaks when the suspect of current player is found in the SUSPECTS list
-			if (self.currentPlayer.getSuspect() == SUSPECTS[foundIdx]):
+			if (self.currentPlayer.getSuspect() == charactersInGame[foundIdx]):
 				found = True
 			else:
 				foundIdx += 1
 		# Increment in the index and modulo if necessary
-		idx = (foundIdx + 1) % len(SUSPECTS)
+		idx = (foundIdx + 1) % len(charactersInGame)
 		candidate = None
 		
 		# Loop through the SUSPECTS list, the next player who has
 		# a turn is based on the next character in the list
-		while (idx < len(SUSPECTS)) and (candidate == None):
+		while (idx < len(charactersInGame)) and (candidate == None):
 			# At this point, we've wrapped around around the 
 			# SUSPECTS list, but we couldn't find the next player
 			if idx == foundIdx:	
 				raise BackException("could not find the next player based on SUSPECT list")
 			else:
 				# Determine if the suspect is being used by a player
-				candidate = self.getPlayerBySuspect(SUSPECTS[idx])
+				candidate = self.getPlayerBySuspect(charactersInGame[idx])
 				# Else, increment the index
-				idx = (idx + 1) % len(SUSPECTS)
+				idx = (idx + 1) % len(charactersInGame)
 		
 		self.logger.log("Determined the next player: %s" % str(candidate))
 		self.currentPlayer = candidate

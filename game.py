@@ -252,7 +252,7 @@ class Game:
 			
 			# Once the cards are assigned, we check off the checklists for all players
 			for player in self.playerlist.getPlayers():
-				cards = self.cardmanager.getCards(player):
+				cards = self.cardmanager.getCards(player)
 				for card in cards:
 					player.updateChecklist(card.getName())
 
@@ -287,19 +287,6 @@ class Game:
 		
 	def selectCard(self,playerId,choice):
 		pass # NOT USED
-		'''
-		self.playerlist.resetMessages()
-		try:
-			player = self.playerlist.getPlayer(playerId)
-			# A player can only select a card if he is under suggestion or accusation
-			if (player.state == PLAYER_DEFEND):
-				player.disprove()
-			else:
-				raise GameException(player,"cannot select a card, not on trial")
-				
-		except GameException as gexc:
-			self.handleGameException(gexc)
-		'''
 		
 	def passTurn(self,playerId):
 		self.playerlist.resetMessages()
@@ -335,7 +322,7 @@ class Game:
 			self.suggestion = Suggestion(currentPlayer,suspect,weapon,room,self.logger)
 			
 			# Do the actions associated with a suggestion
-			self.playerlist.makeSuggestion(self.suggestion,self.gameboard,self.logger)
+			self.playerlist.makeSuggestion(self.suggestion,self.gameboard)
 		except GameException as gexc:
 			self.handleGameException(gexc)
 	
@@ -346,7 +333,7 @@ class Game:
 			targetPlayer = self.playerlist.getPlayer(playerId)
 			
 			# Perform the action about the suggestion
-			self.playerlist.endSuggestion(targetPlayer,card,self.suggestion,self.gameboard,self.casefile,cannotDisprove)
+			self.playerlist.endSuggestion(targetPlayer,card,self.suggestion,self.gameboard,self.cardmanager.casefile,cannotDisprove)
 			
 			# Blow away the suggestion instance
 			self.suggestion = None
@@ -357,14 +344,11 @@ class Game:
 		pass # NOT USED
 	
 	def proposeAccusation(self,playerId,accussedId,weapon,room):
-		self.playerlist.resetMessages()
+		pass
 	
 	# NOTE Argument <type> is redundant, card can be derived by the game itself because this is stupidly trivial
 	def disproveAccusation(self,playerId,card,type,cannotDisprove):
-		self.playerlist.resetMessages()
-	
-		currentPlayer = self.playerlist.getPlayer(playerId)
-		currentPlayer.disprove(self.state,card)
+		pass
 		
 	# Gracefully remove the player from the game
 	def removePlayer(self,playerId):

@@ -60,15 +60,28 @@ class Player:
 	# Returns a message string and message color tuple
 	def getMessage(self):
 		return self.message,self.messageColor
+	
+	# The checklist will contain all the seen stuff in all categories,
+	# will be sorted out when it needs to be returned
+	def updateChecklist(self,evidence):
+		if not (evidence in self.checklist):
+			self.checklist.append(evidence)
 		
-		
-	# Adds a card to the Player's hand
-	# The number of cards given to player is dependent on the number of players
-	# in the game. This is because the cards are equally dispersed once the
-	# case file is created. The types of cards the player has does not matter.
-	def addCard(self,card):
-		self.logger.log("Adding %s card to %s's hand" %(card,self.playerId))
-		self.cards.append(card)
+	# Returns a dictionary object containing the suspects, weapons and rooms
+	# in a player's checklist
+	def getChecklist(self):
+		checklist = {"suspects":[],"weapons":[],"rooms":[]}
+		for evidence in self.checklist:
+			if evidence in SUSPECTS:
+				checklist["suspects"].append(evidence)
+			
+			elif evidence in WEAPONS:
+				checklist["weapons"].append(evidence)
+			
+			elif evidence in ROOMS:
+				checklist["rooms"].append(evidence)
+				
+		return checklist
 		
 	# returns a Dictionary that comprises the Player's state to be sent
 	# the client UI handler.
@@ -110,6 +123,7 @@ class PlayerList:
 		self.logger = logger
 		self.players = []
 		self.currentPlayer = None
+		self.currentPlayerTemp = None
 		self.availableCharacters = []
 		for suspect in SUSPECTS:
 			self.availableCharacters.append(suspect)
@@ -131,28 +145,47 @@ class PlayerList:
 		for player in self.players:
 			player.validatePlayer()
 	
-	# Processes a make suggestion for all of the players,
+	# Starts a suggestion round
+	# Note that the player in this case is the caller player
 	def makeSuggestion(self,suggestion,gameboard):
-		for player in self.players:
+		for p in self.players:
 			# Lock all players
-			player.state = PLAYER_LOCKED
+			p.state = PLAYER_LOCKED
 			
-			# Get the target player
-			target = suggestion.target
-			
-			# Move the target to suggestion room
-			gameboard.movePlayer(target,suggestion.room,force=True)
-			
-			# Set the target's state to SUGGESTION
-			target.state = PLAYER_SUGGEST
-			
-			
-	# Enables all players to move and determines the state of the target player
-	def processSuggestion(self,suggestion,casefile):
+		# Get the target player
+		target = self.getPlayerBySuspect(suggestion.target)
 		
-		for player in self.players:
-			pass # my life into pieces
+		# Move the target to suggestion room
+		gameboard.movePlayer(target,suggestion.room,force=True)
+		
+		# Set the target's state to SUGGESTION DEFEND
+		target.state = PLAYER_DEFEND
+		# Set the turn to the target player and save the current player
+		self.currentPlayerTemp = suggestion.accuser
+		self.currentPlayer = target
 	
+	
+	# Ends a suggestion round
+	# Note that the player in this case is the target player
+	def endSuggestion(self,player,counter,suggestion,gameboard,casefile,cannotDisprove=False):
+		for p in self.players:
+			p.state = PLAYER_IN_PLAY
+		# pop the current player from tempCurrent and resume the game
+		self.currentPlayer = self.currentPlayerTemp
+		self.currentPlayerTemp = None
+		
+		# TODO there needs to be something here to push if the player
+		# TODO cannot disprove the suggestion with the cards he has
+		# TODO If this is the case, something must singal the target (accused)
+		# TODO that we cannot win the case at this point.
+		
+		
+		
+		if (cannotDisprove):
+			# The accused had just shown a card that disprove the suggestion.
+			self.updateChecklists(suggestion.caller,counter)
+		else:
+			self.nextCurrentPlayer()
 	
 	# Returns true only if the current player is the given player
 	def hasTurn(self,player):
@@ -313,29 +346,32 @@ class PlayerList:
 class Suggestion:
 
 	# Note that all parameters MUST be strings.
-	def __init__(self,target,weapon,room,logger):
-		if target.__class__ != str:
-			raise GameError("make sure target in Suggestion is a string")
+	def __init__(self,accuser,suspect,weapon,room,logger):
+		if suspect.__class__ != str:
+			raise GameError("make sure suspect in Suggestion is a string")
 		if weapon.__class__ != str:
 			raise GameError("make sure weapon in Suggestion is a string")
 		if room.__class__ != str:
 			raise GameError("make sure room in Suggestion is a string")
 			
 		self.logger = logger
-		self.logger.log("spawned Suggestion %s %s %s" % (target,weapon,room))
+		self.logger.log("spawned Suggestion %s %s %s" % (suspect,weapon,room))
 		
-		self.target = target
+		# This is the player object that made the suggestion
+		self.accuser = accuser
+		
+		self.suspect = suspect
 		self.weapon = weapon
 		self.room = room
 	
 	# This returns True if the Suggestion can be countered
 	# False otherwise. The counter object can be either
 	# a character, weapon or room. (A character because the
-	# the target player can hold a card of himself, ergo
+	# the suspect player can hold a card of himself, ergo
 	# he has an alibi.)
 	def counter(self,counter):
 		ret = False
-		if counter == self.target:
+		if counter == self.suspect:
 			ret = True
 		if counter == self.weapon:
 			ret = True
@@ -346,18 +382,21 @@ class Suggestion:
 # Class definition of an Accusation. See Suggestion.
 class Accusation:
 	# Note that all parameters MUST be strings.
-	def __init__(self,target,weapon,room,logger):
-		if target.__class__ != str:
-			raise GameError("make sure target in Accusation is a string")
+	def __init__(self,accuser,suspect,weapon,room,logger):
+		if suspect.__class__ != str:
+			raise GameError("make sure suspect in Accusation is a string")
 		if weapon.__class__ != str:
 			raise GameError("make sure weapon in Accusation is a string")
 		if room.__class__ != str:
 			raise GameError("make sure room in Accusation is a string")
 			
 		self.logger = logger
-		self.logger.log("spawned Accusation %s %s %s" % (target,weapon,room))
+		self.logger.log("spawned Accusation %s %s %s" % (suspect,weapon,room))
 		
-		self.target = target
+		# This is a player object that created the accusation
+		self.accuser = accuser
+		
+		self.suspect = suspect
 		self.weapon = weapon
 		self.room = room
 	
@@ -368,7 +407,7 @@ class Accusation:
 	# he has an alibi.)
 	def counter(self,counter):
 		ret = False
-		if counter == self.target:
+		if counter == self.suspect:
 			ret = True
 		if counter == self.weapon:
 			ret = True
@@ -379,4 +418,4 @@ class Accusation:
 	# Returns True if the accusation matches the casefile
 	# False otherwise
 	def checkCasefile(self,casefile):
-		return casefile.checkAccusation(self.target,self.weapon,self.room)
+		return casefile.checkAccusation(self.suspect,self.weapon,self.room)

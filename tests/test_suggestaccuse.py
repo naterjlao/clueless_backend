@@ -12,7 +12,7 @@ from players import *
 from utils import *
 l = Logger()
 
-s = Suggestion("Bob","spoon","bathroom",l)
+s = Suggestion(None,"Bob","spoon","bathroom",l)
 
 assertTrue(s.counter("Bob"))
 assertTrue(s.counter("spoon"))
@@ -23,7 +23,7 @@ assertFalse(s.counter("restroom"))
 
 
 c = CaseFile(Card("Bob",l),Card("spoon",l),Card("bathroom",l),l)
-a = Accusation("Bob","spoon","bathroom",l)
+a = Accusation(None,"Bob","spoon","bathroom",l)
 
 assertTrue(a.counter("Bob"))
 assertTrue(a.counter("spoon"))
@@ -34,10 +34,10 @@ assertFalse(a.counter("restroom"))
 
 assertTrue(a.checkCasefile(c))
 
-a = Accusation("Bob","spoon","restroom",l)
+a = Accusation(None,"Bob","spoon","restroom",l)
 assertFalse(a.checkCasefile(c))
-a = Accusation("Bob","fork","bathroom",l)
+a = Accusation(None,"Bob","fork","bathroom",l)
 assertFalse(a.checkCasefile(c))
-a = Accusation("Martha","spoon","bathroom",l)
+a = Accusation(None,"Martha","spoon","bathroom",l)
 assertFalse(a.checkCasefile(c))
 

@@ -234,9 +234,6 @@ class Gameboard:
 			self.logger.log("Forcefully moving %s from %s to %s" % (str(player),start.getName(),dest.getName()))
 			start.removePlayer(player)
 			dest.addPlayer(player)
-			
-			# This player has just been suggested, the player must be in a state of defend
-			player.state = PLAYER_DEFEND
 		
 		elif self.validMove(player,start,dest):
 		

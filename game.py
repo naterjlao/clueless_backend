@@ -35,7 +35,8 @@ class Game:
 		self.cardmanager = CardManager(self.logger)
 		self.state = STATE_INITIAL
 		self.currentPlayer = None # NOTE the player Object, not the ID
-		self.suggestionCharacter = None
+		self.suggestion = None # this is the current suggestion object in play
+		self.accusation = None # this is the current accusation object in play
 
 	# Debugger printout
 	def __str__(self):
@@ -180,7 +181,11 @@ class Game:
 		
 	# Returns a list of Dictionaries that are sent to each player
 	def getChecklists(self):
-		return [] # TODO
+		data = []
+		for player in self.playerlist.getPlayers():
+			checklist = player.getChecklist()
+			data.append({PLAYER_ID:player.getID(),DIRTY:True,PAYLOAD:checklist})
+		return data
 		
 	# Returns a list of Dictionaries that are sent to each player
 	def getCardlists(self):
@@ -244,6 +249,12 @@ class Game:
 
 			# Assign out the cards to the players
 			self.cardmanager.assign(self.playerlist)
+			
+			# Once the cards are assigned, we check off the checklists for all players
+			for player in self.playerlist.getPlayers():
+				cards = self.cardmanager.getCards(player):
+				for card in cards:
+					player.updateChecklist(card.getName())
 
 			# Assign the starting positions of all the players
 			self.gameboard.intializePlayers(self.playerlist)
@@ -254,7 +265,6 @@ class Game:
 			# Set the game state to STARTED
 			self.state = STATE_STARTED
 			
-			self.playerlist.resetMessages()
 		except GameException as gexc:
 			self.handleGameException(gexc)
 		
@@ -276,6 +286,8 @@ class Game:
 			self.handleGameException(gexc)
 		
 	def selectCard(self,playerId,choice):
+		pass # NOT USED
+		'''
 		self.playerlist.resetMessages()
 		try:
 			player = self.playerlist.getPlayer(playerId)
@@ -287,7 +299,8 @@ class Game:
 				
 		except GameException as gexc:
 			self.handleGameException(gexc)
-	
+		'''
+		
 	def passTurn(self,playerId):
 		self.playerlist.resetMessages()
 		try:
@@ -311,24 +324,35 @@ class Game:
 	
 	# The player suggests an accused player
 	def proposeSuggestion(self,playerId,suspect,weapon):
-		currentPlayer = self.playerlist.getPlayer(playerId)
-		accusedPlayer = self.playerlist.getPlayerBySuspect(suspect)
-		
-		# Force move the accused player to the room the currentPlayer is at
-		
-		
-		
-		
-		
-	
-	# NOTE Argument type is redundant, card can be derived by the gamestate because that trivial	
-	def dispoveSuggestion(self,playerId,card,type,cannotDisprove):
 		self.playerlist.resetMessages()
+		try:
+			# Get the location of the current player, since that
+			# is what will be used in a suggestion
+			currentPlayer = self.playerlist.getPlayer(playerId)
+			room = self.gameboard.getPlayerLoc(currentPlayer).getName()
+			
+			# Store a suggestion object in memory
+			self.suggestion = Suggestion(currentPlayer,suspect,weapon,room,self.logger)
+			
+			# Do the actions associated with a suggestion
+			self.playerlist.makeSuggestion(self.suggestion,self.gameboard,self.logger)
+		except GameException as gexc:
+			self.handleGameException(gexc)
 	
-	
-		currentPlayer = self.playerlist.getPlayer(playerId)
-		currentPlayer.disprove(self.state,card)
-	
+	# NOTE Argument type is redundant, card can be derived by the gamestate because that is trivial	
+	def disproveSuggestion(self,playerId,card,type,cannotDisprove):
+		self.playerlist.resetMessages()
+		try:
+			targetPlayer = self.playerlist.getPlayer(playerId)
+			
+			# Perform the action about the suggestion
+			self.playerlist.endSuggestion(targetPlayer,card,self.suggestion,self.gameboard,self.casefile,cannotDisprove)
+			
+			# Blow away the suggestion instance
+			self.suggestion = None
+		except GameException as gexc:
+			self.handleGameException(gexc)
+
 	def startAccusation(self,playerId):
 		pass # NOT USED
 	

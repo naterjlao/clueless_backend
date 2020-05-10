@@ -29,6 +29,9 @@ class Card:
 	
 	def __str__(self):
 		return str(self.name)
+		
+	def getName(self):
+		return self.name
 
 	def assignTo(self,owner):
 		if self.owner != CARD_UNASSIGNED:

@@ -32,7 +32,8 @@ class Logger:
 
 # These exceptions are logically invalid and shouldn't be possible
 # for triggering. These should only be used to sanity check the logic
-# of the game itself, rather than player actions
+# of the game itself, rather than player actions.
+# TLDR; these are fuckup checks for me (nate)
 class BackException(Exception):
 	def __init__(self,msg):
 		self.msg = msg

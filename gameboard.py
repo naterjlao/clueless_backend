@@ -62,6 +62,15 @@ class Gameboard:
 							self.passageways.append(candidatePWay)
 		for pway in self.passageways:
 			self.logger.log("Passageway generated: %s" % pway)
+			
+		# Add the super secret passages
+		for secret in SECRET_PASSAGES:
+			destA, destB = secret
+			destA = self.getRoom(destA)
+			destB = self.getRoom(destB)
+			self.logger.log("Adding secret passages %s <-> %s" % (destA, destB))
+			destA.addSecretPassage(destB)
+			destB.addSecretPassage(destA)
 	
 	def __str__(self):
 		ret = ""
@@ -202,6 +211,10 @@ class Gameboard:
 	# This is based on the state of succeeding location and the current player's state
 	# There is an edge case for the initial starting position
 	def validMove(self,player,start,dest):
+		# Check if the player is not locked
+		if player.state == PLAYER_LOCKED:
+			raise GameException(player, "cannot move right now")
+	
 		if start == self.initial:
 			return self.determineInitPassageway(player) == dest
 		else:
@@ -211,19 +224,16 @@ class Gameboard:
 	# The force parameter shall only be used if the player needs to
 	# be moved because of a suggestion. If a suggestion is made to 
 	# the player, the player must move to the room of the suggestion
-	def movePlayer(self,player,choiceName,forced=False):
+	def movePlayer(self,player,choiceName,force=False):
 		start = self.getPlayerLoc(player)
 		dest = self.getLoc(choiceName)
 	
-		if forced:
+		if force:
 		
 			# Move the player to the next location without validation
 			self.logger.log("Forcefully moving %s from %s to %s" % (str(player),start.getName(),dest.getName()))
 			start.removePlayer(player)
 			dest.addPlayer(player)
-			
-			# This player has just been suggested, the player must be in a state of defend
-			player.state = PLAYER_DEFEND
 		
 		elif self.validMove(player,start,dest):
 		
@@ -232,9 +242,13 @@ class Gameboard:
 			start.removePlayer(player)
 			dest.addPlayer(player)
 			
-			# If the player had just moved to a room, he must make a suggestion
-			if (dest.isPassageWay()):
+			# If the player had just moved to a room, he MUST make a suggestion
+			if (dest.isRoom()):
 				player.state = PLAYER_SUGGEST
+				
+			# If the player had just moved into a hallway
+			else:
+				player.state = PLAYER_IN_PLAY
 		else:
 			GameException(player,"Invalid move")
 
@@ -242,7 +256,7 @@ class Gameboard:
 	def removePlayer(self,player):
 		pass
 
-	# Returns Room or Passageway based on name
+	# Returns Room or Passageway based on the name of the location
 	def getLoc(self,name):
 		target = None
 		for loc in self.getAllPositions():

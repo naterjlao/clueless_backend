@@ -278,11 +278,12 @@ class PlayerList:
 	
 	# Returns a list of strings that represent the suspects
 	# that were already picked in the game.
+	# If a player has lost the game, he is ignored
 	def getCharactersInGame(self):
 		characters = []
 		for player in self.getPlayers():
 			suspect = player.getSuspect()
-			if suspect != None:
+			if suspect != None and player.state != PLAYER_LOSE:
 				characters.append(suspect)
 		return characters
 		

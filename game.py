@@ -146,6 +146,7 @@ class Game:
 							accusePlayerOptions.append(p)
 					# get the suspect names, not player id
 					accuseOptions = list(map(lambda p : p.getSuspect(), accusePlayerOptions))
+					
 					# get all weapons
 					weaponOptions = WEAPONS
 					
@@ -278,7 +279,7 @@ class Game:
 		try:
 			player = self.playerlist.getPlayer(playerId)
 			# Must validate that it is the current player's turn
-			if self.playerlist.hasTurn(player):
+			if self.playerlist.hasTurn(player) and player.state != PLAYER_LOSE and player.state != PLAYER_LOCKED:
 				self.gameboard.movePlayer(player,choice)
 				# If the player has just moved to a room, he must make a suggestion
 				# Else, the turn counter is incremented
@@ -354,10 +355,44 @@ class Game:
 	def startAccusation(self,playerId):
 		self.state = STATE_ACCUSATION
 	
-	def proposeAccusation(self,playerId,accussedId,weapon,room):
-		pass
+	def proposeAccusation(self,playerId,accusedId,weapon,room):
+		self.playerlist.resetMessages()
+		try:
+			accuser = self.playerlist.getPlayer(playerId)
+			suspect = self.playerlist.getPlayer(accusedId)
+		
+			# The player calls an accusation and an accusation object is built
+			self.accusation = Accusation(accuser,suspect.getSuspect(),weapon,room)
+			
+			# Validate against the casefile
+			isCorrect = self.accusation.checkCaseFile()
+			
+			# Throw the game into a state of accusation
+			# (this is currently pointless, because evaluation comes immediately after)
+			self.state = STATE_ACCUSATION
+			
+			# If the accusation is true, the game ends
+			# - the accuser is made the winner
+			# - the suspect loses
+			if (isCorrect):
+				accuser.state = PLAYER_WIN
+				suspect.state = PLAYER_LOSE
+				# The game ends
+				self.state = STATE_END
+			
+			# If the accusation is false, the game resumes
+			# - the accuser loses the game, and may not proceed
+			else:
+				accuser.state = PLAYER_LOSE
+				# The game is thrown to movement
+				self.state = STATE_MOVE
+		
+			# Blow away the accusation object
+			self.accusation = None
+		except GameException as gexc:
+			self.handleGameException(gexc)
 	
-	# NOTE Argument <type> is redundant, card can be derived by the game itself because this is stupidly trivial
+	# NOTE this is not used, validation immediately comes from the case file
 	def disproveAccusation(self,playerId,card,type,cannotDisprove):
 		pass
 		

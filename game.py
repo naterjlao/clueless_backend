@@ -301,7 +301,7 @@ class Game:
 				and (currentPlayer.state != PLAYER_DEFEND):
 				self.playerlist.nextCurrentPlayer()
 			else:
-				raise GameException(player,"cannot pass turn")
+				raise GameException(currentPlayer,"cannot pass turn")
 		except GameException as gexc:
 			self.handleGameException(gexc)
 	

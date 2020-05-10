@@ -305,9 +305,9 @@ class Game:
 		except GameException as gexc:
 			self.handleGameException(gexc)
 	
-	
+	# Enables the game's suggestion state
 	def startSuggestion(self,playerId):
-		pass # NOT USED
+		self.state = STATE_SUGGESTION
 	
 	# The player suggests an accused player
 	def proposeSuggestion(self,playerId,suspect,weapon):
@@ -337,11 +337,15 @@ class Game:
 			
 			# Blow away the suggestion instance
 			self.suggestion = None
+			
+			# Revert game state to normal
+			self.state = STATE_STARTED
 		except GameException as gexc:
 			self.handleGameException(gexc)
 
+	# Enables the game accusation state
 	def startAccusation(self,playerId):
-		pass # NOT USED
+		self.state = STATE_ACCUSATION
 	
 	def proposeAccusation(self,playerId,accussedId,weapon,room):
 		pass

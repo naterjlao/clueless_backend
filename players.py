@@ -143,7 +143,7 @@ class PlayerList:
 		for p in self.players:
 			# Lock all players
 			p.state = PLAYER_LOCKED
-			p.message = "%s suggest %s in %s with the %s!" % (suggestion.accuser.getName(),suggestion.target,suggestion.room,suggestion.weapon)
+			p.message = "%s suggest %s in %s with the %s!" % (suggestion.accuser.getSuspect(),suggestion.target,suggestion.room,suggestion.weapon)
 			
 		# Get the target player
 		target = self.getPlayerBySuspect(suggestion.suspect)

@@ -122,11 +122,13 @@ class Game:
 		# Data preprocessing is needed
 		data = []
 		for player in self.playerlist.getPlayers():
-			moveOptions = self.gameboard.getMoveOptions(player)
-			moveOptStr = []
-			for option in moveOptions:
-				moveOptStr.append(option.getName())
-			data.append({PLAYER_ID:player.playerId,DIRTY:True,PAYLOAD:moveOptStr})
+			# Don't allow the player to move if they need to suggest
+			if player.state != PLAYER_SUGGEST:
+				moveOptions = self.gameboard.getMoveOptions(player)
+				moveOptStr = []
+				for option in moveOptions:
+					moveOptStr.append(option.getName())
+				data.append({PLAYER_ID:player.playerId,DIRTY:True,PAYLOAD:moveOptStr})
 		return data
 
 	# Returns a list of Dictionaries that are sent to each player
@@ -291,9 +293,6 @@ class Game:
 				# Else, the turn counter is incremented
 				if (player.state != PLAYER_SUGGEST):
 					self.playerlist.nextCurrentPlayer()
-					
-				# The player had just moved, change state to refresh UI
-				player.state = PLAYER_MOVED
 			else:
 				raise GameException(player,"Cannot move, it is not your turn")
 		except GameException as gexc:

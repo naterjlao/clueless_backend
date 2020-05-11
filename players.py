@@ -162,7 +162,7 @@ class PlayerList:
 			idx = SUSPECTS.index(fakeSuspect)
 			while idx < len(SUSPECTS) and target == None:
 				# it'll be pretty stupid to pick a target that was the player that made the suggestion
-				candidate = self.playerlist.getPlayerBySuspect(SUSPECTS[idx])
+				candidate = self.getPlayerBySuspect(SUSPECTS[idx])
 				if (candidate != suggestion.accuser):
 					target = candidate
 				idx = (idx + 1) % len(SUSPECTS)

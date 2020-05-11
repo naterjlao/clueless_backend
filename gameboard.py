@@ -247,6 +247,7 @@ class Gameboard:
 			# If the player had just moved to a room, he MUST make a suggestion
 			if (dest.isRoom()):
 				player.state = PLAYER_SUGGEST
+				player.message = "MAKE A SUGGESTION! ...plz"
 				
 			# If the player had just moved into a hallway
 			else:

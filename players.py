@@ -101,14 +101,6 @@ class Player:
 		# If the player was forced to a room, a suggestion is optional
 		return self.state == PLAYER_SUGGEST # TODO make sure this get thrown back to IN_PLAY
 	
-	# Processes a suggestion request, the player is LOCKED until the suggestion is
-	# satisfied. Afterwards, the player is in play and turn is incremented to the next player
-	# in the cycle.
-	def makeSuggestion(self):
-		# The playerlist
-		pass
-		# Push the state to IN_PLAY
-	
 	# Associates a suspect string name to this player
 	# Note: we assume that the selection is good.
 	# (ie. the player cannot select a suspect that is already choosen
@@ -151,6 +143,7 @@ class PlayerList:
 		for p in self.players:
 			# Lock all players
 			p.state = PLAYER_LOCKED
+			p.message = "%s suggest %s in %s with the %s!" % (suggestion.accuser.getName(),suggestion.target,suggestion.room,suggestion.weapon)
 			
 		# Get the target player
 		target = self.getPlayerBySuspect(suggestion.suspect)

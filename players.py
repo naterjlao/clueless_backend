@@ -89,7 +89,8 @@ class Player:
 		return {
 			"playerId"          : self.playerId,
 			"suspect"           : self.suspect,
-			"isSuggestionValid" : self.isSuggestionValid()
+			"isSuggestionValid" : self.isSuggestionValid(),
+			"status"            : self.state
 		}
 	
 	# Returns True if the Player is eligible to make a suggestion

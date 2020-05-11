@@ -308,6 +308,14 @@ class Game:
 				and (currentPlayer.state != PLAYER_SUGGEST) \
 				and (currentPlayer.state != PLAYER_DEFEND):
 				self.playerlist.nextCurrentPlayer()
+				
+				newCurrentPlayer = self.playerlist.getCurrentPlayer()
+				moveOptions = self.gameboard.getMoveOptions(newCurrentPlayer)
+				if len(moveOptions) > 0:
+					self.state = STATE_MOVE
+				else :
+					self.state = STATE_STARTED # player might be able to suggest, but can't move anywhere
+					
 			else:
 				raise GameException(currentPlayer,"cannot pass turn")
 		except GameException as gexc:

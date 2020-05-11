@@ -318,9 +318,9 @@ class Game:
 				newCurrentPlayer = self.playerlist.getCurrentPlayer()
 				moveOptions = self.gameboard.getMoveOptions(newCurrentPlayer)
 				if len(moveOptions) > 0:
-					self.state = STATE_MOVE
+					newCurrentPlayer.state = PLAYER_MOVE
 				else :
-					self.state = STATE_STARTED # player might be able to suggest, but can't move anywhere
+					newCurrentPlayer.state = PLAYER_IN_PLAY # player might be able to suggest, but can't move anywhere
 					
 			else:
 				raise GameException(currentPlayer,"cannot pass turn")
@@ -398,8 +398,8 @@ class Game:
 			# - the accuser loses the game, and may not proceed
 			else:
 				accuser.state = PLAYER_LOSE
-				# The game is thrown to movement
-				self.state = STATE_MOVE
+				# The game is thrown back to normal
+				self.state = STATE_STARTED
 		
 			# Blow away the accusation object
 			self.accusation = None

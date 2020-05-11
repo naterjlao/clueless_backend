@@ -135,6 +135,8 @@ class Gameboard:
 	def intializePlayers(self,playerlist):
 		for player in playerlist.getPlayers():
 			self.initial.addPlayer(player)
+		for player in playerlist.fakePlayers:
+			self.initial.addPlayer(player)
 
 	# Returns a dictionary.
 	# Contains keys that are named after every possible location on the board include INITIAL

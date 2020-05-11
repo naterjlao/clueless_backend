@@ -155,6 +155,21 @@ class PlayerList:
 		# Move the target to suggestion room
 		gameboard.movePlayer(target,suggestion.room,force=True)
 		
+		# If the target is a fake player, pick the next closest player
+		if (target.fakeAF):
+			fakeSuspect = target.getSuspect()
+			target = None
+			idx = SUSPECTS.index(fakeSuspect)
+			while idx < len(SUSPECTS) and target == None:
+				# it'll be pretty stupid to pick a target that was the player that made the suggestion
+				candidate = self.playerlist.getPlayerBySuspect(SUSPECTS[idx])
+				if (candidate != suggestion.accuser):
+					target = candidate
+				idx = (idx + 1) % len(SUSPECTS)
+		
+		if (target == None):
+			raise BackException("makeSuggestion in players.py failed because target is empty")
+		
 		# Set the target's state to SUGGESTION DEFEND
 		target.state = PLAYER_DEFEND
 		# Set the turn to the target player and save the current player
@@ -346,7 +361,7 @@ class PlayerList:
 		if ret == None:
 			for p in self.fakePlayers:
 				if p.getSuspect() == suspect:
-					ret = player
+					ret = p
 		return ret
 		
 	# Removes the player from the playerlist and returns the player object

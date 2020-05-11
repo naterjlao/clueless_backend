@@ -77,7 +77,7 @@ class Game:
 			}
 			
 		# Revert state back to MOVE (unless a suggestion action is called)
-		self.state = STATE_MOVE
+		# self.state = STATE_MOVE
 		
 		return ret
 	

@@ -293,7 +293,7 @@ class Game:
 					self.playerlist.nextCurrentPlayer()
 					
 				# The player had just moved, change state to refresh UI
-				self.state = STATE_MOVED
+				player.state = PLAYER_MOVED
 			else:
 				raise GameException(player,"Cannot move, it is not your turn")
 		except GameException as gexc:

@@ -28,6 +28,7 @@ class Player:
 		self.checklist = []
 		self.state = PLAYER_INITIAL # It is assumed that when a player is made, he's automatically thrown to in play
 		self.logger.log("Added player %s" % playerId)
+		self.fakeAF = False
 	
 	def __str__(self):
 		return "%s (%s)" % (str(self.suspect), str(self.playerId))
@@ -54,9 +55,11 @@ class Player:
 	
 	# Reverts message attributes to initial settings
 	def resetMessage(self):
+		pass
+		''' DISABLE FOR NOW
 		self.message = ""
 		self.messageColor = "blue"
-		
+		'''
 	# Returns a message string and message color tuple
 	def getMessage(self):
 		return self.message,self.messageColor
@@ -115,6 +118,7 @@ class PlayerList:
 	def __init__(self,logger):
 		self.logger = logger
 		self.players = []
+		self.fakePlayers = []
 		self.currentPlayer = None
 		self.availableCharacters = []
 		for suspect in SUSPECTS:
@@ -143,10 +147,10 @@ class PlayerList:
 		for p in self.players:
 			# Lock all players
 			p.state = PLAYER_LOCKED
-			p.message = "%s suggest %s in %s with the %s!" % (suggestion.accuser.getSuspect(),suggestion.target,suggestion.room,suggestion.weapon)
+			p.message = "%s suggest %s in %s with the %s!" % (suggestion.accuser.getSuspect(),suggestion.suspect,suggestion.room,suggestion.weapon)
 			
 		# Get the target player
-		target = self.getPlayerBySuspect(suggestion.suspect)
+		target = self.getPlayerBySuspect2(suggestion.suspect)
 		
 		# Move the target to suggestion room
 		gameboard.movePlayer(target,suggestion.room,force=True)
@@ -293,6 +297,19 @@ class PlayerList:
 	# players should no longer be able to select new characters
 	def lockAvailableCharacters(self):
 		self.logger.log("Available characters lockdown")
+		self.logger.log("Assigning fake ass people to play the game")
+		# What's left over is the leftover characters, they cannot move for now bruh
+		# So create fake players as a standin
+		idx = 0
+		for s in self.availableCharacters:
+			self.logger.log("creating fake player for the %s piece of shit" % s)
+			id = "asshole%d" % idx
+			fakeMeOut = Player(id,self.logger)
+			fakeMeOut.selectSuspect(s)
+			fakeMeOut.fakeAF = True
+			self.fakePlayers.append(fakeMeOut)
+			idx += 1
+		
 		# Blow away all available characters that can be picked
 		self.availableCharacters = []
 
@@ -320,9 +337,18 @@ class PlayerList:
 		for player in self.players:
 			if player.getSuspect() == suspect:
 				ret = player
-				break
 		return ret
-
+	
+	# Returns all players, including fake ones
+	def getPlayerBySuspect2(self,suspect):
+		ret = self.getPlayerBySuspect(suspect)
+		# Get the fake people
+		if ret == None:
+			for p in self.fakePlayers:
+				if p.getSuspect() == suspect:
+					ret = player
+		return ret
+		
 	# Removes the player from the playerlist and returns the player object
 	def removePlayer(self,playerId):
 		target = self.getPlayer(playerId)

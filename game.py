@@ -315,7 +315,10 @@ class Game:
 				if (player.state != PLAYER_SUGGEST):
 					self.playerlist.nextCurrentPlayer()
 			else:
-				raise GameException(player,"Cannot move, it is not your turn")
+				if player.state != PLAYER_LOSE:
+					raise GameException(player,"Cannot move, it is not your turn")
+				else:
+					raise GameException(player,"Sorry... you lost")
 		except GameException as gexc:
 			self.handleGameException(gexc)
 		
@@ -428,6 +431,17 @@ class Game:
 				accuser.message = "Sorry! you lost (shhh... keep this a secret: it is %s)" % str(self.accusation)
 				# The game is thrown back to normal
 				self.state = STATE_STARTED
+				# Make sure to increment the turn
+				self.playerlist.nextCurrentPlayer()
+				
+				# So if there is only one player left, he wins by default
+				numPlayersLeft = 0
+				for p in self.playerlist.getPlayers():
+					if p.state != PLAYER_LOSE:
+						numPlayersLeft += 1
+				if numPlayersLeft == 1:
+					self.currentPlayer.message = "CONGRATULATIONS, YOU WON! But since you didn't figure out the culprit, it shall be a mystery..."
+					self.state = STATE_END
 		
 			# Blow away the accusation object
 			self.accusation = None

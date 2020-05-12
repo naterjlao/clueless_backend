@@ -402,7 +402,7 @@ class Game:
 			self.accusation = Accusation(accuser,suspect.getSuspect(),weapon,room,self.logger)
 			
 			# Validate against the casefile
-			isCorrect = self.accusation.checkCaseFile()
+			isCorrect = self.accusation.checkCasefile(self.cardmanager.casefile)
 			
 			# Throw the game into a state of accusation
 			# (this is currently pointless, because evaluation comes immediately after)

@@ -34,7 +34,6 @@ class Game:
 		self.gameboard = Gameboard(self.logger)
 		self.cardmanager = CardManager(self.logger)
 		self.state = STATE_INITIAL
-		self.currentPlayer = None # NOTE the player Object, not the ID
 		self.suggestion = None # this is the current suggestion object in play
 		self.accusation = None # this is the current accusation object in play
 
@@ -440,7 +439,7 @@ class Game:
 					if p.state != PLAYER_LOSE:
 						numPlayersLeft += 1
 				if numPlayersLeft == 1:
-					self.currentPlayer.message = "CONGRATULATIONS, YOU WON! But since you didn't figure out the culprit, it shall be a mystery..."
+					self.playerlist.getCurrentPlayer().message = "CONGRATULATIONS, YOU WON! But since you didn't figure out the culprit, it shall be a mystery..."
 					self.state = STATE_END
 		
 			# Blow away the accusation object

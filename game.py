@@ -221,24 +221,21 @@ class Game:
 		for player in self.playerlist.getPlayers():
 			message,color = player.getMessage()
 			data.append({PLAYER_ID:player.getID(),DIRTY:True,PAYLOAD:{"message":message,"color":color}})
+		self.playerlist.resetMessages()
 		return data
 
 	########################################################################
 	# PUBLIC INTERFACE METHODS PROCESSORS
 	########################################################################
 	def addPlayer(self,playerId):
-		self.playerlist.resetMessages()
 		try:
 			self.playerlist.addPlayer(playerId)
-			self.playerlist.resetMessages()
 		except GameException as gexc:
 			self.handleGameException(gexc)
 		
 	def selectSuspect(self,playerId,suspect):
-		self.playerlist.resetMessages()
 		try:
 			self.playerlist.selectPlayerSuspect(playerId,suspect)
-			self.playerlist.resetMessages()
 		except GameException as gexc:
 			self.handleGameException(gexc)
 
@@ -255,7 +252,6 @@ class Game:
 	# - no other players will join
 	# - the CardManager is properly initialized
 	def startGame(self):
-		self.playerlist.resetMessages()
 		try:
 			# Validate if all players are ready to play
 			self.playerlist.validatePlayers()
@@ -289,7 +285,6 @@ class Game:
 		
 		
 	def selectMove(self,playerId,choice):
-		self.playerlist.resetMessages()
 		try:
 			player = self.playerlist.getPlayer(playerId)
 			# Must validate that it is the current player's turn
@@ -308,7 +303,6 @@ class Game:
 		pass # NOT USED
 		
 	def passTurn(self,playerId):
-		self.playerlist.resetMessages()
 		try:
 			currentPlayer = self.playerlist.getCurrentPlayer()
 			# A pass turn signal must be 
@@ -338,7 +332,6 @@ class Game:
 	
 	# The player suggests an accused player
 	def proposeSuggestion(self,playerId,suspect,weapon):
-		self.playerlist.resetMessages()
 		try:
 			# Get the location of the current player, since that
 			# is what will be used in a suggestion
@@ -355,7 +348,6 @@ class Game:
 	
 	# NOTE Argument type is redundant, card can be derived by the gamestate because that is trivial	
 	def disproveSuggestion(self,playerId,card,type,cannotDisprove):
-		self.playerlist.resetMessages()
 		try:
 			targetPlayer = self.playerlist.getPlayer(playerId)
 			
@@ -375,7 +367,6 @@ class Game:
 		self.state = STATE_ACCUSATION
 	
 	def proposeAccusation(self,playerId,accusedId,weapon,room):
-		self.playerlist.resetMessages()
 		try:
 			accuser = self.playerlist.getPlayer(playerId)
 			suspect = self.playerlist.getPlayer(accusedId)
@@ -417,8 +408,6 @@ class Game:
 		
 	# Gracefully remove the player from the game
 	def removePlayer(self,playerId):
-		self.playerlist.resetMessages()
-	
 		target = self.playerlist.removePlayer(playerId)
 		self.gameboard.removePlayer(target)
 

@@ -55,11 +55,9 @@ class Player:
 	
 	# Reverts message attributes to initial settings
 	def resetMessage(self):
-		pass
-		''' DISABLE FOR NOW
 		self.message = ""
 		self.messageColor = "blue"
-		'''
+
 	# Returns a message string and message color tuple
 	def getMessage(self):
 		return self.message,self.messageColor

@@ -458,6 +458,9 @@ class Accusation:
 		self.weapon = weapon
 		self.room = room
 	
+	def __str__(self):
+		return "%s in the %s with the %s" % (self.suspect,self.room,self.weapon)
+	
 	# This returns True if the accusation can be countered
 	# False otherwise. The counter object can be either
 	# a character, weapon or room. (A character because the

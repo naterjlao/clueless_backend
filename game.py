@@ -387,6 +387,11 @@ class Game:
 			if (isCorrect):
 				accuser.state = PLAYER_WIN
 				suspect.state = PLAYER_LOSE
+				
+				# Announce the actual culprit and end of game
+				for p in self.playerlist.getPlayers():
+					p.message = "BREAKING NEWS!!! %s just caught the culprit of a recent murder, it turns out %s just killed a fly... The game is over - Thanks for playing!" % (accuser.getID(),str(self.accusation))
+				
 				# The game ends
 				self.state = STATE_END
 			
@@ -394,6 +399,7 @@ class Game:
 			# - the accuser loses the game, and may not proceed
 			else:
 				accuser.state = PLAYER_LOSE
+				accuser.message = "Sorry! you lost ¯\_(ツ)_/¯ (shhh... keep this a secret: it's %s)" % str(self.accusation)
 				# The game is thrown back to normal
 				self.state = STATE_STARTED
 		

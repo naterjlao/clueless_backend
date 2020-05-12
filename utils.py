@@ -15,18 +15,14 @@ from globals import *
 # There will be only one logger for each python file.
 # Log files will be pushed to /opt/clueless/log/backend.log
 class Logger:
-	# TODO remove init, not needed
 	def __init__(self):
 		if not DEBUG:
 			self.file = open(LOG_FILE,'w+')
 	def log(self,msg):
 		if DEBUG:
-			pass
 			print(msg)
 		else:
 			self.file.write("%s\n" % msg)
-			# TODO append the message
-			# TODO push to log file
 
 # Custom error and exception classes
 

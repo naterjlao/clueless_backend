@@ -208,6 +208,8 @@ class PlayerList:
 					p.state = PLAYER_IN_PLAY
 				# pop the current player from the buffer
 				self.currentPlayer = suggestion.accuser
+				accuser.message = "Your accusation just got countered! %s pulled the %s card!" % (suggestion.suspect,counter)
+				
 				# increment the player counter
 				self.nextCurrentPlayer()
 				# update the checklist of the accuser player, since he can only

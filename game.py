@@ -68,11 +68,18 @@ class Game:
 		currentPlayer = self.playerlist.getCurrentPlayer()
 		currentPlayerId = "No current player, game has not started" if currentPlayer == None else currentPlayer.getID()
 
+		suggestionDict = {}
+		if self.suggestion != None:
+			suggestionDict["suspect"] = self.suggestion.suspect
+			suggestionDict["weapon"] = self.suggestion.weapon
+			suggestionDict["room"] = self.suggestion.room
+
 		ret = {
 				"currentPlayerId"     : currentPlayerId,
 				"turnStatus"          : self.state,
 				"availableCharacters" : self.playerlist.getAvailableCharacters(),
 				"characters_in_game"  : self.playerlist.getCharactersInGame(),
+				"suggestion"          : suggestionDict,
 				"game_has_begun"      : (self.state != STATE_INITIAL)
 			}
 			

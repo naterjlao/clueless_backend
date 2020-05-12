@@ -194,7 +194,7 @@ class PlayerList:
 			if (suggestion.counter(counter) == False):
 				if self.specialCounter == 0:
 					self.specialCounter += 1
-					raise GameException(player,"hey... sorry my guy, you can't really defend yourself with %s, try something else?" % counter)
+					raise GameException(player,"hey... sorry my guy, you cannot really defend yourself with %s, try something else?" % counter)
 				elif self.specialCounter == 1:
 					self.specialCounter += 1
 					raise GameException(player,"still no go bro with %s, pick something else" % counter)

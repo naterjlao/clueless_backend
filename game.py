@@ -399,7 +399,7 @@ class Game:
 						break
 		
 			# The player calls an accusation and an accusation object is built
-			self.accusation = Accusation(accuser,suspect.getSuspect(),weapon,room)
+			self.accusation = Accusation(accuser,suspect.getSuspect(),weapon,room,self.logger)
 			
 			# Validate against the casefile
 			isCorrect = self.accusation.checkCaseFile()

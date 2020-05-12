@@ -439,7 +439,7 @@ class Game:
 					if p.state != PLAYER_LOSE:
 						numPlayersLeft += 1
 				if numPlayersLeft == 1:
-					self.playerlist.getCurrentPlayer().message = "CONGRATULATIONS, YOU WON! But since you didn't figure out the culprit, it shall be a mystery..."
+					self.playerlist.getCurrentPlayer().message = "CONGRATULATIONS, YOU WON! But since you did not figure out the culprit, it shall be a mystery..."
 					self.state = STATE_END
 		
 			# Blow away the accusation object

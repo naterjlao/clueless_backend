@@ -399,7 +399,7 @@ class Game:
 			# - the accuser loses the game, and may not proceed
 			else:
 				accuser.state = PLAYER_LOSE
-				accuser.message = "Sorry! you lost ¯\_(ツ)_/¯ (shhh... keep this a secret: it's %s)" % str(self.accusation)
+				accuser.message = "Sorry! you lost (shhh... keep this a secret: it is %s)" % str(self.accusation)
 				# The game is thrown back to normal
 				self.state = STATE_STARTED
 		

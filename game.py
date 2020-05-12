@@ -175,13 +175,19 @@ class Game:
 			for player in allPlayers:
 				self.logger.log("getting accusation options for %s" % player)
 				# A player can accuse at anytime
-				accusePlayerOptions = []
+				#accusePlayerOptions = []
+				accuseOptions = []
 				# under the fifth amendment, you are protected against self-incrimination
+				for s in SUSPECTS:
+					if (player.getSuspect() != s):
+						accuseOptions.append(s)
+				'''
 				for p in allPlayers:
 					if (p != player):
 						accusePlayerOptions.append(p)
 				# get the suspect names, not player id
 				accuseOptions = list(map(lambda p : p.getSuspect(), accusePlayerOptions))
+				'''
 				# get all weapons
 				weaponOptions = WEAPONS
 				

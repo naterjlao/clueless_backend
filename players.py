@@ -121,6 +121,7 @@ class PlayerList:
 		self.fakePlayers = []
 		self.currentPlayer = None
 		self.availableCharacters = []
+		self.specialCounter = 0
 		for suspect in SUSPECTS:
 			self.availableCharacters.append(suspect)
 	
@@ -191,9 +192,17 @@ class PlayerList:
 		else:
 			# If the player cannot disprove the suggestion, with the card, the move is invalid
 			if (suggestion.counter(counter) == False):
-				raise GameException(player,"cannot disprove the suggestion with this counter")
+				if self.specialCounter == 0:
+					self.specialCounter += 1
+					raise GameException(player,"hey... sorry my guy, you can't really defend yourself with %s, try something else?" % counter)
+				elif self.specialCounter == 1:
+					self.specialCounter += 1
+					raise GameException(player,"still no go bro with %s, pick something else" % counter)
+				else:
+					raise GameException(player,"%s ...really?  Pick a good defense or Cannot Disprove" % counter)
 			# The player has successfully countered the suggestion
-			else:		
+			else:
+				self.specialCounter = 0
 				# Reenable all players
 				for p in self.players:
 					p.state = PLAYER_IN_PLAY

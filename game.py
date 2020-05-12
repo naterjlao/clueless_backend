@@ -143,11 +143,17 @@ class Game:
 				if (player.state == PLAYER_SUGGEST):
 					#accusePlayerOptions = []
 					accuseOptions = []
+					
+					# trust no one, not even yourself
+					for s in SUSPECTS:
+						accuseOptions.append(s)
+					
+					'''
 					# under the fifth amendment, you are protected against self-incrimination
 					for s in SUSPECTS:
 						if (player.getSuspect() != s):
 							accuseOptions.append(s)
-					
+					'''
 					'''
 					for p in allPlayers:
 						if (p != player):
@@ -177,10 +183,17 @@ class Game:
 				# A player can accuse at anytime
 				#accusePlayerOptions = []
 				accuseOptions = []
+				
+				# trust no one, not even yourself
+				for s in SUSPECTS:
+					accuseOptions.append(s)
+					
+				'''
 				# under the fifth amendment, you are protected against self-incrimination
 				for s in SUSPECTS:
 					if (player.getSuspect() != s):
 						accuseOptions.append(s)
+				'''
 				'''
 				for p in allPlayers:
 					if (p != player):
@@ -386,7 +399,7 @@ class Game:
 			# - the suspect loses
 			if (isCorrect):
 				accuser.state = PLAYER_WIN
-				suspect.state = PLAYER_LOSE
+				#suspect.state = PLAYER_LOSE
 				
 				# Announce the actual culprit and end of game
 				for p in self.playerlist.getPlayers():

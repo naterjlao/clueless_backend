@@ -379,10 +379,17 @@ class Game:
 	def startAccusation(self,playerId):
 		self.state = STATE_ACCUSATION
 	
-	def proposeAccusation(self,playerId,accusedId,weapon,room):
+	def proposeAccusation(self,playerId,suspect_,weapon,room):
 		try:
 			accuser = self.playerlist.getPlayer(playerId)
-			suspect = self.playerlist.getPlayer(accusedId)
+			suspect = self.playerlist.getPlayerBySuspect(suspect_)
+		
+			# If the accusation is to a NPC
+			if suspect == None:
+				for fp in self.playerlist.fakePlayers:
+					if fp.getSuspect() == suspect_:
+						suspect = fp
+						break
 		
 			# The player calls an accusation and an accusation object is built
 			self.accusation = Accusation(accuser,suspect.getSuspect(),weapon,room)
@@ -396,7 +403,6 @@ class Game:
 			
 			# If the accusation is true, the game ends
 			# - the accuser is made the winner
-			# - the suspect loses
 			if (isCorrect):
 				accuser.state = PLAYER_WIN
 				#suspect.state = PLAYER_LOSE
